@@ -195,6 +195,13 @@ textarea.inp{font-family:var(--f-num);font-size:12px;min-height:140px;margin-top
 .toast button{border:0;background:transparent;color:var(--accent-soft);text-decoration:underline;font-weight:700;margin-left:10px;padding:0}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(140px + env(safe-area-inset-bottom,0px));z-index:30;background:var(--ink);color:var(--paper);padding:9px 16px;border-radius:999px;font-size:14px;max-width:calc(100% - 32px);text-align:center;box-shadow:var(--shadow)}
 .loading{padding:40px 0;text-align:center;color:var(--muted)}
+main,.top{overflow-x:clip}
+.quick,.qgrid,.qhead,.amountbox,.qacct{min-width:0;max-width:100%}
+.qbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;width:100%;-webkit-appearance:none;appearance:none;color:var(--ink)}
+.qbtn span:last-child{display:block;width:100%;text-align:center}
+.quick .amountbox input{font-size:28px}
+.qacct select{max-width:9em}
+.ver{font-size:12px;color:var(--muted);text-align:center;margin:4px 0 0}
 </style>
 
 </head>
@@ -476,7 +483,7 @@ function renderSettings(){
     </div>
     <div id="expOut"></div></div>
   <div class="card"><h3>加到 iPhone 主畫面</h3>
-    <ol class="steps"><li>用 Safari 打開這個頁面</li><li>點下方的「分享」按鈕（方框加向上箭頭）</li><li>選「加入主畫面」，名稱可以改成「記帳本」</li><li>之後都從主畫面圖示打開記帳。注意：主畫面 App 和 Safari 分頁的資料是分開的，請固定用同一個</li></ol></div>`;
+    <ol class="steps"><li>用 Safari 打開這個頁面</li><li>點下方的「分享」按鈕（方框加向上箭頭）</li><li>選「加入主畫面」，名稱可以改成「記帳本」</li><li>之後都從主畫面圖示打開記帳。注意：主畫面 App 和 Safari 分頁的資料是分開的，請固定用同一個</li></ol><p class="ver">版本 3（2026/10/29）</p></div>`;
   $("#sBudget").onchange=e=>{const n=Math.max(0,Math.round(+String(e.target.value).replace(/[^\d.]/g,"")||0));S.settings.budget=n;saveSettings();toast("預算已更新")};
   v.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{const k=b.dataset.del;if(S.settings[k].length<=1){toast("至少要保留一個");return}S.settings[k].splice(+b.dataset.i,1);saveSettings()});
   v.querySelectorAll("[data-add]").forEach(b=>{const k=b.dataset.add;const inp=$("#add"+k[0].toUpperCase()+k.slice(1));
