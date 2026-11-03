@@ -516,6 +516,7 @@ select option{background:var(--surface);color:var(--ink)}
 .fbox.sm{min-height:42px;flex:1 1 150px;background:var(--surface2);border-color:var(--line)}
 .fbox.sm .nsel{padding:9px 26px 9px 0;font-size:15.5px}
 .remrow .btn{min-height:42px}
+#remTest{flex-basis:100%}
 .tgls{display:grid}
 .tgl{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);cursor:pointer}
 .tgl:first-child{border-top:0;padding-top:2px}
@@ -527,6 +528,28 @@ select option{background:var(--surface);color:var(--ink)}
 .tgl input:checked+i{background:#34C759;border-color:#34C759}
 .tgl input:checked+i::after{transform:translateX(20px)}
 .tgl input:focus-visible+i{outline:2px solid var(--accent);outline-offset:2px}
+
+/* credit cards */
+.linkbtn{border:0;background:none;color:var(--accent);font-weight:700;font-size:14px;padding:2px 4px}
+.ccard{padding:14px 0;border-top:1px solid var(--line)}
+.card-h+.ccard,.card-h+.emptyline+.ccard{border-top:0;padding-top:2px}
+.cctop{display:flex;align-items:baseline;gap:8px}
+.cctop b{font-size:16px}.cctop span{font-size:13px;color:var(--muted)}.cctop .linkbtn{margin-left:auto}
+.ccbig{display:flex;align-items:baseline;gap:10px;margin-top:8px;flex-wrap:wrap}
+.ccbig span{font-size:13px;color:var(--muted)}
+.ccbig b{font-size:26px;font-weight:900}.ccbig b.neg{color:var(--danger)}
+.ccbig small{margin-left:auto;font-size:13px;color:var(--muted);font-weight:700}
+.ccard .pbar{margin-top:8px}
+.ccrows{display:grid;gap:2px;margin-top:12px;border-radius:12px;background:var(--surface2);padding:4px 12px}
+.ccrow{display:flex;align-items:center;gap:10px;padding:8px 0}
+.ccrow+.ccrow{border-top:1px solid var(--line)}
+.ccrow>div{flex:1;min-width:0;display:grid;gap:1px}
+.ccrow b{font-size:14px}.ccrow span{font-size:12.5px;color:var(--muted)}
+.ccrow.due span{color:var(--danger);font-weight:700}
+.ccrow em{font-style:normal;font-size:16px;font-weight:900}
+.paybtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 11px;font-size:12.5px;font-weight:700;white-space:nowrap;color:var(--accent)}
+.paybtn.on{background:#34C759;border-color:#34C759;color:#fff}
+#addCard{margin-top:10px}
 </style>
 
 </head>
@@ -581,6 +604,17 @@ select option{background:var(--surface);color:var(--ink)}
   <button class="savebtn" type="submit" id="recSave">儲存</button>
   <div class="delslot" id="recDel"></div>
 </form>
+<div class="scrim" id="cardScrim" hidden></div>
+<form class="sheet" id="cardSheet" hidden autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="cardTitle">
+  <div class="mhead"><h2 id="cardTitle">新增信用卡</h2><button type="button" class="round" id="cardClose" aria-label="關閉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="fld"><label class="fl" for="cAcct">對應的帳戶</label><div class="fbox sel"><select id="cAcct" class="nsel"></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div><p class="rhint">記帳時選這個帳戶的支出，會算進這張卡。有多張卡的話，可以先到設定新增帳戶，例如「國泰卡」「玉山卡」。</p></div>
+  <div class="fld"><label class="fl" for="cLimit">信用額度</label><div class="fbox amt"><span class="cur">$</span><input id="cLimit" inputmode="numeric" placeholder="例如 50000"></div></div>
+  <div class="two2"><div class="fld"><label class="fl" for="cClose">結帳日</label><div class="fbox sel"><select id="cClose" class="nsel"><option value="1">每月 1 號</option><option value="2">每月 2 號</option><option value="3">每月 3 號</option><option value="4">每月 4 號</option><option value="5">每月 5 號</option><option value="6">每月 6 號</option><option value="7">每月 7 號</option><option value="8">每月 8 號</option><option value="9">每月 9 號</option><option value="10">每月 10 號</option><option value="11">每月 11 號</option><option value="12">每月 12 號</option><option value="13">每月 13 號</option><option value="14">每月 14 號</option><option value="15">每月 15 號</option><option value="16">每月 16 號</option><option value="17">每月 17 號</option><option value="18">每月 18 號</option><option value="19">每月 19 號</option><option value="20">每月 20 號</option><option value="21">每月 21 號</option><option value="22">每月 22 號</option><option value="23">每月 23 號</option><option value="24">每月 24 號</option><option value="25">每月 25 號</option><option value="26">每月 26 號</option><option value="27">每月 27 號</option><option value="28">每月 28 號</option><option value="29">每月 29 號（小月為月底）</option><option value="30">每月 30 號（小月為月底）</option><option value="31">每月 31 號（小月為月底）</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+    <div class="fld"><label class="fl" for="cDue">繳款截止日</label><div class="fbox sel"><select id="cDue" class="nsel"><option value="1">每月 1 號</option><option value="2">每月 2 號</option><option value="3">每月 3 號</option><option value="4">每月 4 號</option><option value="5">每月 5 號</option><option value="6">每月 6 號</option><option value="7">每月 7 號</option><option value="8">每月 8 號</option><option value="9">每月 9 號</option><option value="10">每月 10 號</option><option value="11">每月 11 號</option><option value="12">每月 12 號</option><option value="13">每月 13 號</option><option value="14">每月 14 號</option><option value="15">每月 15 號</option><option value="16">每月 16 號</option><option value="17">每月 17 號</option><option value="18">每月 18 號</option><option value="19">每月 19 號</option><option value="20">每月 20 號</option><option value="21">每月 21 號</option><option value="22">每月 22 號</option><option value="23">每月 23 號</option><option value="24">每月 24 號</option><option value="25">每月 25 號</option><option value="26">每月 26 號</option><option value="27">每月 27 號</option><option value="28">每月 28 號</option><option value="29">每月 29 號（小月為月底）</option><option value="30">每月 30 號（小月為月底）</option><option value="31">每月 31 號（小月為月底）</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div></div>
+  <p class="rhint" style="margin-top:-6px">結帳日和繳款截止日都寫在信用卡帳單上。</p>
+  <button class="savebtn" type="submit" id="cardSave">儲存</button>
+  <div class="delslot" id="cardDel"></div>
+</form>
 <div class="toast" id="toast" hidden role="status"></div>
 
 <script>
@@ -623,12 +657,12 @@ function sampleData(){
 function demoSettings(){const cur=ym(new Date());
   Object.assign(S.settings,{_demo:true,budget:36000,catBudget:{"餐飲":6500,"交通":2500,"購物":3000,"娛樂":2500},
     favs:[{id:"f1",type:"exp",name:"早餐蛋餅",cat:"餐飲",acct:"現金",amount:55},{id:"f2",type:"exp",name:"捷運",cat:"交通",acct:"一卡通",amount:35},{id:"f3",type:"exp",name:"手搖飲",cat:"餐飲",acct:"一卡通",amount:65},{id:"f4",type:"exp",name:"午餐便當",cat:"餐飲",acct:"現金",amount:95}],
-    recurring:[{id:"r1",type:"exp",name:"房租",amount:12000,cat:"居家",acct:"銀行",day:1,next:shiftMonth(cur,-5)},{id:"r2",type:"exp",name:"Netflix",amount:390,cat:"娛樂",acct:"信用卡",day:15,next:shiftMonth(cur,-5)}]})}
+    recurring:[{id:"r1",type:"exp",name:"房租",amount:12000,cat:"居家",acct:"銀行",day:1,next:shiftMonth(cur,-5)},{id:"r2",type:"exp",name:"Netflix",amount:390,cat:"娛樂",acct:"信用卡",day:15,next:shiftMonth(cur,-5)}],cards:[{id:"c1",acct:"信用卡",limit:60000,closeDay:5,dueDay:20,paid:{}}]})}
 function init(){const saved=lsLoad();if(saved&&saved.tx){S.tx=saved.tx;S.settings={...clone(DEFAULTS),...saved.settings}}else{S.tx=sampleData();S.sample=true;demoSettings();try{const lk=JSON.parse(localStorage.getItem(LS_KEY+"-look")||"null");if(lk)Object.assign(S.settings,lk)}catch(e){}}ensureColors();applyLook();const nr=runRecurring();render();if(nr&&!S.sample)toast(`已自動記入 ${nr} 筆固定收支`)}
 function putTx(t){const i=S.tx.findIndex(x=>x.id===t.id);if(i>=0)S.tx[i]=t;else S.tx.push(t);lsSave();render()}
 function delTx(id){const t=S.tx.find(x=>x.id===id);S.tx=S.tx.filter(x=>x.id!==id);lsSave();render();return t}
 function saveSettings(){lsSave();render()}
-function exitSample(){if(!S.sample)return;S.tx=[];S.sample=false;if(S.settings._demo){delete S.settings._demo;S.settings.budget=DEFAULTS.budget;S.settings.catBudget={};S.settings.favs=[];S.settings.recurring=[]}}
+function exitSample(){if(!S.sample)return;S.tx=[];S.sample=false;if(S.settings._demo){delete S.settings._demo;S.settings.budget=DEFAULTS.budget;S.settings.catBudget={};S.settings.favs=[];S.settings.recurring=[];S.settings.cards=[]}}
 function clearSample(){exitSample();lsSave();render();toast("已清除範例，開始記帳吧")}
 
 /* derived */
@@ -793,21 +827,21 @@ function renderSettings(){
   <div class="card" id="remCard"><div class="card-h"><h2>提醒</h2></div>
     <div class="sublbl">每天記帳提醒</div>
     <p class="note">網頁 App 沒辦法自己發通知，所以這裡會幫你在 iPhone 的「行事曆」加一個每天重複、會跳通知的提醒。</p>
-    <div class="remrow"><div class="fbox sel sm"><select id="remTime" class="nsel" aria-label="提醒時間"><option value="07:00">上午 7:00</option><option value="07:30">上午 7:30</option><option value="08:00">上午 8:00</option><option value="08:30">上午 8:30</option><option value="09:00">上午 9:00</option><option value="09:30">上午 9:30</option><option value="10:00">上午 10:00</option><option value="10:30">上午 10:30</option><option value="11:00">上午 11:00</option><option value="11:30">上午 11:30</option><option value="12:00">下午 12:00</option><option value="12:30">下午 12:30</option><option value="13:00">下午 1:00</option><option value="13:30">下午 1:30</option><option value="14:00">下午 2:00</option><option value="14:30">下午 2:30</option><option value="15:00">下午 3:00</option><option value="15:30">下午 3:30</option><option value="16:00">下午 4:00</option><option value="16:30">下午 4:30</option><option value="17:00">下午 5:00</option><option value="17:30">下午 5:30</option><option value="18:00">下午 6:00</option><option value="18:30">下午 6:30</option><option value="19:00">下午 7:00</option><option value="19:30">下午 7:30</option><option value="20:00">下午 8:00</option><option value="20:30">下午 8:30</option><option value="21:00">下午 9:00</option><option value="21:30">下午 9:30</option><option value="22:00">下午 10:00</option><option value="22:30">下午 10:30</option><option value="23:00">下午 11:00</option><option value="23:30">下午 11:30</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div><button type="button" class="btn primary" id="remIcs">加到 iPhone 行事曆</button></div>
+    <div class="remrow"><div class="fbox sel sm"><select id="remTime" class="nsel" aria-label="提醒時間"><option value="07:00">上午 7:00</option><option value="07:30">上午 7:30</option><option value="08:00">上午 8:00</option><option value="08:30">上午 8:30</option><option value="09:00">上午 9:00</option><option value="09:30">上午 9:30</option><option value="10:00">上午 10:00</option><option value="10:30">上午 10:30</option><option value="11:00">上午 11:00</option><option value="11:30">上午 11:30</option><option value="12:00">下午 12:00</option><option value="12:30">下午 12:30</option><option value="13:00">下午 1:00</option><option value="13:30">下午 1:30</option><option value="14:00">下午 2:00</option><option value="14:30">下午 2:30</option><option value="15:00">下午 3:00</option><option value="15:30">下午 3:30</option><option value="16:00">下午 4:00</option><option value="16:30">下午 4:30</option><option value="17:00">下午 5:00</option><option value="17:30">下午 5:30</option><option value="18:00">下午 6:00</option><option value="18:30">下午 6:30</option><option value="19:00">下午 7:00</option><option value="19:30">下午 7:30</option><option value="20:00">下午 8:00</option><option value="20:30">下午 8:30</option><option value="21:00">下午 9:00</option><option value="21:30">下午 9:30</option><option value="22:00">下午 10:00</option><option value="22:30">下午 10:30</option><option value="23:00">下午 11:00</option><option value="23:30">下午 11:30</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div><button type="button" class="btn primary" id="remIcs">加到 iPhone 行事曆</button><button type="button" class="btn" id="remTest">先測試：2 分鐘後跳一次通知</button></div>
     <details class="howto"><summary>也可以用「捷徑」設定</summary><ol><li>打開 iPhone 的「捷徑」App，點下方的「自動化」</li><li>點右上角「＋」，選「特定時間」，設定時間（例如晚上 9:00）、重複「每天」，選「立即執行」</li><li>加入動作「顯示通知」，內容輸入「今天記帳了嗎？」，完成</li><li>收到通知後，從主畫面的「日常帳本」圖示打開記帳</li></ol></details>
     <div class="sublbl" style="margin-top:16px">App 內提醒</div>
-    <div class="tgls"><label class="tgl"><span><b>記帳提醒</b><small>昨天漏記，或晚上 8 點後今天還沒記帳</small></span><input type="checkbox" data-rem="log" ${remOn("log")?"checked":""}><i></i></label><label class="tgl"><span><b>固定收支快到了</b><small>自動記帳前 3 天先提醒</small></span><input type="checkbox" data-rem="rec" ${remOn("rec")?"checked":""}><i></i></label><label class="tgl"><span><b>總預算快用完</b><small>本月花到 90% 以上時提醒</small></span><input type="checkbox" data-rem="bud" ${remOn("bud")?"checked":""}><i></i></label><label class="tgl"><span><b>備份提醒</b><small>超過 30 天沒有匯出備份時提醒</small></span><input type="checkbox" data-rem="bak" ${remOn("bak")?"checked":""}><i></i></label></div></div>
+    <div class="tgls"><label class="tgl"><span><b>記帳提醒</b><small>昨天漏記，或晚上 9 點後今天還沒記帳</small></span><input type="checkbox" data-rem="log" ${remOn("log")?"checked":""}><i></i></label><label class="tgl"><span><b>固定收支快到了</b><small>自動記帳前 3 天先提醒</small></span><input type="checkbox" data-rem="rec" ${remOn("rec")?"checked":""}><i></i></label><label class="tgl"><span><b>總預算快用完</b><small>本月花到 90% 以上時提醒</small></span><input type="checkbox" data-rem="bud" ${remOn("bud")?"checked":""}><i></i></label><label class="tgl"><span><b>卡費快到期</b><small>信用卡繳款截止前 3 天提醒</small></span><input type="checkbox" data-rem="card" ${remOn("card")?"checked":""}><i></i></label><label class="tgl"><span><b>備份提醒</b><small>超過 30 天沒有匯出備份時提醒</small></span><input type="checkbox" data-rem="bak" ${remOn("bak")?"checked":""}><i></i></label></div></div>
   <div class="card"><div class="card-h"><h2>常用項目</h2><span>在記一筆時勾選即可新增</span></div><div class="tags">${(S.settings.favs||[]).length?(S.settings.favs||[]).map(f=>`<span class="tag">${esc(f.name)} $${fmt(f.amount)}<button type="button" data-fdel="${esc(f.id)}" aria-label="刪除 ${esc(f.name)}">×</button></span>`).join(""):`<span class="note" style="margin:0">還沒有常用項目</span>`}</div></div>
   <div class="card"><div class="card-h"><h2>支出分類</h2><span>點圓點可以換顏色</span></div><div class="tags">${tagList("exp")}</div><div class="addrow"><input class="inp" id="add-exp" placeholder="新增分類，例如：寵物" maxlength="8"><button class="btn" data-tadd="exp" type="button">新增</button></div></div>
   <div class="card"><div class="card-h"><h2>收入分類</h2><span>點圓點可以換顏色</span></div><div class="tags">${tagList("inc")}</div><div class="addrow"><input class="inp" id="add-inc" placeholder="新增分類，例如：紅包" maxlength="8"><button class="btn" data-tadd="inc" type="button">新增</button></div></div>
   <div class="card"><div class="card-h"><h2>帳戶</h2></div><div class="tags">${tagList("accounts")}</div><div class="addrow"><input class="inp" id="add-accounts" placeholder="新增帳戶，例如：Line Pay" maxlength="10"><button class="btn" data-tadd="accounts" type="button">新增</button></div></div>
   <div class="card" id="bakCard"><div class="card-h"><h2>備份與匯出</h2></div><p class="note">資料只存在這支手機裡。建議每月匯出一次備份。</p><div class="btns"><button class="btn" type="button" id="expCsv">匯出 Excel 用 CSV</button><button class="btn" type="button" id="expJson">匯出完整備份</button><label class="btn" for="impFile">匯入備份</label><input type="file" id="impFile" accept=".json,application/json" hidden></div><div id="expOut"></div></div>
-  <p class="ver">Ver4.1.1</p>`;
+  <p class="ver">Ver4.1.2</p>`;
   v.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>{const k=ckey(b.dataset.cc,b.dataset.c);S.settings.colors[k]=((S.settings.colors[k]??0)+1)%NCOL;saveSettings()});
   v.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>{S.settings.accent=b.dataset.acc;applyLook();saveSettings()});
   v.querySelectorAll("[data-bgm]").forEach(b=>b.onclick=()=>{S.settings.bg=b.dataset.bgm;applyLook();saveSettings()});
   $("#remTime").value=S.settings.remindTime||"21:00";$("#remTime").onchange=e=>{S.settings.remindTime=e.target.value;saveSettings()};
-  $("#remIcs").onclick=addCalendarReminder;
+  $("#remIcs").onclick=()=>addCalendarReminder(false);$("#remTest").onclick=()=>addCalendarReminder(true);
   v.querySelectorAll("[data-rem]").forEach(c=>c.onchange=()=>{S.settings.rem={...(S.settings.rem||{}),[c.dataset.rem]:c.checked};saveSettings()});
   if(S.focusRem){S.focusRem=false;setTimeout(()=>{const el=$(S.focusRemSel||"#remCard");if(el)el.scrollIntoView({behavior:"smooth",block:"start"})},420)}
   v.querySelectorAll("[data-fdel]").forEach(b=>b.onclick=()=>{S.settings.favs=(S.settings.favs||[]).filter(f=>f.id!==b.dataset.fdel);saveSettings()});
@@ -980,11 +1014,13 @@ function getReminders(){const out=[],now=new Date(),today=ymd(now),dis=S.setting
   const yd=new Date(now.getFullYear(),now.getMonth(),now.getDate()-1),yds=ymd(yd);
   if(remOn("log")&&S.tx.length){
     if(S.tx.some(t=>t.date<yds)&&!S.tx.some(t=>t.date===yds&&!t.rid))out.push({key:"y:"+yds,tone:"info",text:`昨天 ${fmtMD(yds)} 沒有記帳`,act:"補記昨天",fn:()=>openSheet({when:new Date(yd.getFullYear(),yd.getMonth(),yd.getDate(),12,0)})});
-    else if(now.getHours()>=20&&!S.tx.some(t=>t.date===today&&!t.rid))out.push({key:"t:"+today,tone:"info",text:"今天還沒有記帳",act:"記一筆",fn:()=>openSheet({})})}
+    else if(now.getHours()>=21&&!S.tx.some(t=>t.date===today&&!t.rid))out.push({key:"t:"+today,tone:"info",text:"今天還沒有記帳",act:"記一筆",fn:()=>openSheet({})})}
   if(remOn("rec"))for(const r of S.settings.recurring||[]){const m=r.next||ym(now),d=Math.min(r.day,daysIn(m)),ds=m+"-"+pad(d);
     const diff=Math.round((new Date(ds+"T00:00:00")-new Date(today+"T00:00:00"))/864e5);
     if(diff>0&&diff<=3)out.push({key:"r:"+r.id+":"+m,tone:"info",text:`${esc(r.name)} ${r.type==="inc"?"+":"−"}$${fmt(r.amount)} 將在 ${diff===1?"明天":fmtMD(ds)}自動記入`,act:"查看",fn:()=>go("budget")})}
   const b=+S.settings.budget||0;if(remOn("bud")&&b){const e=totals(monthTx(ym(now))).e;if(e/b>=.9)out.push({key:"b:"+ym(now)+(e>b?":o":""),tone:e>b?"bad":"warn",text:e>b?`本月已超支 $${fmt(e-b)}`:`本月預算已用 ${Math.floor(e/b*100)}%，剩 $${fmt(b-e)}`,act:"看預算",fn:()=>go("budget")})}
+  if(remOn("card"))for(const c of S.settings.cards||[]){const cy=cardCycle(c),last=cardSpend(c.acct,cy.lastFrom,cy.lastTo);if(last<=0||(c.paid||{})[cy.key])continue;
+    const diff=Math.round((cy.due-dayStart(now))/864e5);if(diff>=0&&diff<=3)out.push({key:"c:"+c.id+":"+cy.key,tone:diff<=1?"warn":"info",text:`${esc(c.acct)} 卡費 $${fmt(last)} ${diff===0?"今天":diff===1?"明天":fmtMD(ymd(cy.due))}到期`,act:"已繳",fn:()=>{markCardPaid(c,cy.key,true)}})}
   if(remOn("bak")&&!S.sample&&S.tx.length>=10){const last=S.settings.lastBackup,first=Math.min(...S.tx.map(t=>t.ts||Date.parse(t.date)));
     const since=Math.floor((Date.now()-(last||first))/864e5);if(since>=30)out.push({key:"k:"+Math.floor(since/30),tone:"warn",text:last?`已經 ${since} 天沒有備份`:`還沒有備份過資料`,act:"去備份",fn:()=>{S.focusRem=true;S.focusRemSel="#bakCard";prevView="home";go("set")}})}
   return out.filter(r=>!dis[r.key])}
@@ -993,16 +1029,23 @@ function remindersHTML(){const rs=getReminders();S._rems=rs;if(!rs.length)return
 function bindReminders(v){v.querySelectorAll("[data-ra]").forEach(b=>b.onclick=()=>S._rems[+b.dataset.ra].fn());
   v.querySelectorAll("[data-rx]").forEach(b=>b.onclick=()=>{const r=S._rems[+b.dataset.rx];S.settings.dismissed={...(S.settings.dismissed||{}),[r.key]:1};
     const el=b.closest(".rem");el.classList.add("gone");setTimeout(()=>{lsSave();render()},220)})}
-function addCalendarReminder(){
-  const tm=(S.settings.remindTime||"21:00").replace(":",""),now=new Date(),start=new Date(now.getFullYear(),now.getMonth(),now.getDate()),ds=ymd(start).replace(/-/g,"");
-  const stamp=new Date().toISOString().replace(/[-:]/g,"").replace(/\.\d+/,""),url=location.hostname.endsWith("github.io")?location.origin+location.pathname:"https://young1009.github.io/ledger/";
-  const ics=["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//RiChangZhangBen//ZH-TW","CALSCALE:GREGORIAN","BEGIN:VEVENT","UID:ledger-daily-"+Date.now()+"@young1009.github.io","DTSTAMP:"+stamp,
-    "DTSTART:"+ds+"T"+tm+"00","DURATION:PT5M","RRULE:FREQ=DAILY","SUMMARY:日常帳本｜今天記帳了嗎？","DESCRIPTION:打開主畫面的「日常帳本」記下今天的花費","URL:"+url,
-    "BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:PT0M","DESCRIPTION:今天記帳了嗎？","END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n");
+function icsTime(d){return d.getFullYear()+pad(d.getMonth()+1)+pad(d.getDate())+"T"+pad(d.getHours())+pad(d.getMinutes())+"00"}
+function buildIcs(test){
+  const now=new Date(),stamp=now.toISOString().replace(/[-:]/g,"").replace(/\.\d+/,""),url=location.hostname.endsWith("github.io")?location.origin+location.pathname:"https://young1009.github.io/ledger/";
+  let start,extra;
+  if(test){start=new Date(now.getTime()+2*60000);start.setSeconds(0,0);extra=[]}
+  else{const[hh,mm]=(S.settings.remindTime||"21:00").split(":").map(Number);start=new Date(now.getFullYear(),now.getMonth(),now.getDate(),hh,mm);extra=["RRULE:FREQ=DAILY"]}
+  return["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//RiChangZhangBen//ZH-TW","CALSCALE:GREGORIAN","METHOD:PUBLISH","BEGIN:VEVENT",
+    "UID:ledger-"+(test?"test":"daily")+"-"+now.getTime()+"@young1009.github.io","DTSTAMP:"+stamp,"DTSTART:"+icsTime(start),"DURATION:PT5M",...extra,
+    "SUMMARY:"+(test?"日常帳本｜測試提醒":"日常帳本｜今天記帳了嗎？"),"DESCRIPTION:"+(test?"看到這則通知就代表提醒設定成功，可以把這個測試行程刪掉":"打開主畫面的「日常帳本」記下今天的花費"),"URL:"+url,
+    "BEGIN:VALARM","ACTION:DISPLAY","TRIGGER:PT0M","DESCRIPTION:"+(test?"測試提醒：通知正常":"今天記帳了嗎？"),"END:VALARM","END:VEVENT","END:VCALENDAR"].join("\r\n")+"\r\n";
+}
+function addCalendarReminder(test){
+  const ics=buildIcs(test);
   if(!location.hostname.endsWith("github.io")){toast("預覽版不能加入行事曆，上傳到網站後就能使用");return}
-  const blob=new Blob([ics],{type:"text/calendar"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="日常帳本-每日記帳提醒.ics";
+  const blob=new Blob([ics],{type:"text/calendar"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=test?"日常帳本-測試提醒.ics":"日常帳本-每日記帳提醒.ics";
   document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000);
-  toast("在跳出的畫面點「加入全部」就完成了")}
+  toast(test?"點「加入全部」後等 2 分鐘，看會不會跳通知":"在跳出的畫面點「加入全部」就完成了")}
 /* ===== shared dialog helpers ===== */
 function openDlg(sh,sc){[...sh.children].forEach((c,i)=>c.style.setProperty("--i",i));lockScroll();sh.classList.remove("hide");sc.classList.remove("hide");sh.hidden=false;sc.hidden=false;sh.scrollTop=0;sh.classList.remove("show");void sh.offsetWidth;sh.classList.add("show")}
 function closeDlg(sh,sc){if(sh.hidden)return;if(matchMedia("(prefers-reduced-motion:reduce)").matches){sh.hidden=true;sc.hidden=true;unlockScroll();return}
@@ -1024,7 +1067,12 @@ function runRecurring(){const now=new Date(),cur=ym(now);let n=0;
         S.tx.push({id:uid(),type:r.type,cat:r.cat,acct:r.acct,amount:r.amount,date:m+"-"+pad(d),note:r.name,ts:new Date(y,mm-1,d,9,0).getTime(),rid:r.id});n++}
       m=shiftMonth(m,1)}r.next=m}
   if(n)lsSave();return n}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){const n=runRecurring();if(n){render();toast(`已自動記入 ${n} 筆固定收支`)}}});
+function dlgOpen(){return[...document.querySelectorAll(".sheet")].some(s=>!s.hidden)}
+let remSig="";function remKeys(){try{return getReminders().map(r=>r.key).join("|")}catch(e){return""}}
+function refreshHome(force){if(S.view!=="home"||dlgOpen())return;const k=remKeys();if(force||k!==remSig){remSig=k;render()}}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){const n=runRecurring();if(n){render();toast(`已自動記入 ${n} 筆固定收支`)}else refreshHome(true)}});
+window.addEventListener("pageshow",e=>{if(e.persisted)refreshHome(true)});
+setInterval(()=>{if(document.visibilityState==="visible")refreshHome(false)},60000);
 function nextDue(r){const now=new Date(),cur=ym(now);let m=r.next||cur;const d=Math.min(r.day,daysIn(m));return`${+m.slice(5)}/${d}`}
 const R={editing:null,type:"exp",start:0};
 function openRec(r){R.editing=r||null;R.type=r?r.type:"exp";R.start=0;
@@ -1087,6 +1135,49 @@ function renderBudget(){
   $("#addRec").onclick=()=>openRec(null);
 }
 
+
+/* ===== credit cards ===== */
+function dayIn(y,m0,d){return new Date(y,m0,Math.min(d,new Date(y,m0+1,0).getDate()))}
+function addDays(d,n){return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n)}
+function cardCycle(c,now){now=now||new Date();const today=dayStart(now);
+  let close=dayIn(today.getFullYear(),today.getMonth(),c.closeDay);if(today>close)close=dayIn(today.getFullYear(),today.getMonth()+1,c.closeDay);
+  const prev=dayIn(close.getFullYear(),close.getMonth()-1,c.closeDay),prev2=dayIn(close.getFullYear(),close.getMonth()-2,c.closeDay);
+  const due=c.dueDay>c.closeDay?dayIn(prev.getFullYear(),prev.getMonth(),c.dueDay):dayIn(prev.getFullYear(),prev.getMonth()+1,c.dueDay);
+  return{curFrom:ymd(addDays(prev,1)),curTo:ymd(close),close,lastFrom:ymd(addDays(prev2,1)),lastTo:ymd(prev),due,key:ymd(prev)}}
+function cardSpend(acct,from,to){let s=0;for(const t of S.tx)if(t.acct===acct&&t.date>=from&&t.date<=to)s+=t.type==="inc"?-(+t.amount||0):(+t.amount||0);return Math.max(0,s)}
+function markCardPaid(c,key,on){c.paid={...(c.paid||{}),[key]:on};if(!on)delete c.paid[key];saveSettings();toast(on?`${c.acct} 這期卡費已標記為已繳`:"已取消標記",on?{label:"復原",fn:()=>markCardPaid(c,key,false)}:null)}
+function md(s){return`${+s.slice(5,7)}/${+s.slice(8)}`}
+function cardsHTML(){const cards=S.settings.cards||[],today=dayStart(new Date());
+  let h=`<div class="card"><div class="card-h"><h2>信用卡</h2><span>額度與卡費（以今天計算）</span></div>`;
+  if(!cards.length)h+=`<div class="emptyline">刷卡不會馬上扣款。設定信用卡的額度、結帳日和繳款日，就能看到<b>可用額度</b>和<b>每期要繳多少</b>。</div>`;
+  h+=cards.map((c,i)=>{const cy=cardCycle(c),cur=cardSpend(c.acct,cy.curFrom,cy.curTo),last=cardSpend(c.acct,cy.lastFrom,cy.lastTo),paid=!!(c.paid||{})[cy.key];
+    const owed=cur+(paid?0:last),avail=c.limit-owed,p=c.limit?owed/c.limit:0,lv=p>1?"over":p>=.8?"warn":"",dd=Math.round((cy.due-today)/864e5),cd=Math.round((cy.close-today)/864e5);
+    const dueTxt=last<=0?"上期沒有消費":paid?"已繳清":dd<0?`${md(ymd(cy.due))} 已過繳款日`:dd===0?"今天是繳款截止日":`${md(ymd(cy.due))} 截止 · 還有 ${dd} 天`;
+    return`<div class="ccard"><div class="cctop"><b>${esc(c.acct)}</b><span class="tn">額度 $${fmt(c.limit)}</span><button type="button" class="linkbtn" data-ced="${i}">編輯</button></div>
+      <div class="ccbig"><span>可用額度</span><b class="tn ${avail<0?"neg":""}">${avail<0?"−":""}$${fmt(Math.abs(avail))}</b><small class="tn">已用 ${Math.round(p*100)}%</small></div>
+      <div class="pbar ${lv}"><div style="width:${Math.min(100,p*100)}%"></div></div>
+      <div class="ccrows"><div class="ccrow"><div><b>本期累積</b><span>${md(cy.curFrom)}–${md(cy.curTo)} · ${cd===0?"今天結帳":`${cd} 天後結帳`}</span></div><em class="tn">$${fmt(cur)}</em></div>
+        <div class="ccrow ${!paid&&last>0&&dd<=3?"due":""}"><div><b>上期帳單</b><span>${dueTxt}</span></div><em class="tn">$${fmt(last)}</em>${last>0?`<button type="button" class="paybtn ${paid?"on":""}" data-cpay="${i}" aria-pressed="${paid}">${paid?"✓ 已繳":"標記已繳"}</button>`:""}</div></div></div>`}).join("");
+  return h+`<button type="button" class="more" id="addCard">＋ ${cards.length?"新增另一張信用卡":"設定信用卡"}</button></div>`}
+function bindCards(v){const cards=S.settings.cards||[];
+  v.querySelectorAll("[data-ced]").forEach(b=>b.onclick=()=>openCard(cards[+b.dataset.ced]));
+  v.querySelectorAll("[data-cpay]").forEach(b=>b.onclick=()=>{const c=cards[+b.dataset.cpay],k=cardCycle(c).key;markCardPaid(c,k,!(c.paid||{})[k])});
+  const a=v.querySelector("#addCard");if(a)a.onclick=()=>openCard(null)}
+let CE=null;
+function openCard(c){CE=c||null;$("#cardTitle").textContent=c?"編輯信用卡":"新增信用卡";
+  const ac=S.settings.accounts,used=(S.settings.cards||[]).filter(x=>x!==c).map(x=>x.acct);
+  $("#cAcct").innerHTML=ac.map(a=>`<option${used.includes(a)?" disabled":""}>${esc(a)}</option>`).join("");
+  $("#cAcct").value=c?c.acct:(ac.find(a=>/卡/.test(a)&&!used.includes(a))||ac.find(a=>!used.includes(a))||ac[0]);
+  $("#cLimit").value=c?c.limit:"";$("#cClose").value=String(c?c.closeDay:5);$("#cDue").value=String(c?c.dueDay:20);
+  $("#cardDel").innerHTML=c?`<button type="button" class="linkdel" id="cardDelBtn">刪除這張信用卡</button>`:"";
+  if(c)$("#cardDelBtn").onclick=()=>{S.settings.cards=(S.settings.cards||[]).filter(x=>x!==CE);saveSettings();closeDlg($("#cardSheet"),$("#cardScrim"));toast("已刪除信用卡設定，記帳紀錄不受影響")};
+  openDlg($("#cardSheet"),$("#cardScrim"))}
+$("#cardClose").onclick=()=>closeDlg($("#cardSheet"),$("#cardScrim"));$("#cardScrim").onclick=()=>closeDlg($("#cardSheet"),$("#cardScrim"));
+$("#cardSheet").onsubmit=e=>{e.preventDefault();const lim=Math.round(+String($("#cLimit").value).replace(/[^\d.]/g,"")||0);
+  if(lim<=0){toast("請輸入信用額度");$("#cLimit").focus();return}
+  const v={acct:$("#cAcct").value,limit:lim,closeDay:+$("#cClose").value,dueDay:+$("#cDue").value};
+  S.settings.cards=S.settings.cards||[];if(CE)Object.assign(CE,v);else S.settings.cards.push({id:uid(),paid:{},...v});
+  closeDlg($("#cardSheet"),$("#cardScrim"));saveSettings();toast(CE?"已更新信用卡":"已新增信用卡")};
 /* ===== stats ===== */
 function kfmt(n){return n>=10000?(n/10000).toFixed(n>=100000?0:1).replace(/\.0$/,"")+"萬":n>=1000?(n/1000).toFixed(1).replace(/\.0$/,"")+"k":String(Math.round(n))}
 function trendSVG(months){
@@ -1107,6 +1198,7 @@ function renderStats(){
   let h=`<div class="monthbar"><button class="round" id="sPrev" aria-label="上個月">‹</button><h2>${+mm} 月<small>${yy}</small></h2><button class="round" id="sNext" aria-label="下個月"${isCur?" disabled":""}>›</button></div>`;
   h+=`<div class="card"><div class="card-h"><h2>本月概況</h2>${cmp}</div><div class="bigrow"><div><span>支出</span><b class="tn">$${fmt(t.e)}</b></div><div class="inc"><span>收入</span><b class="tn">$${fmt(t.i)}</b></div><div class="${t.n<0?"neg":""}"><span>結餘</span><b class="tn">${money(t.n)}</b></div></div>
     <div class="minis"><div><span>日均支出</span><b class="tn">$${fmt(t.e/days)}</b></div><div><span>上月支出</span><b class="tn">$${fmt(pt.e)}</b></div><div><span>筆數</span><b class="tn">${list.filter(x=>x.type!=="inc").length}</b></div></div></div>`;
+  h+=cardsHTML();
   h+=`<div class="card"><div class="card-h"><h2>近 6 個月支出</h2><span class="tn">${(()=>{const a=months.filter(x=>x.e>0);return a.length?"虛線為平均 $"+fmt(a.reduce((s,x)=>s+x.e,0)/a.length):"點長條切換月份"})()}</span></div><div class="trend">${trendSVG(months)}</div></div>`;
   const cur={},prev={};for(const x of list)if(x.type!=="inc")cur[x.cat]=(cur[x.cat]||0)+(+x.amount||0);for(const x of monthTx(pm))if(x.type!=="inc")prev[x.cat]=(prev[x.cat]||0)+(+x.amount||0);
   const rank=Object.entries(cur).sort((a,b)=>b[1]-a[1]),top=rank.length?rank[0][1]:1,lim=S.settings.catBudget||{};
@@ -1115,14 +1207,14 @@ function renderStats(){
       <div class="rbar"><div style="width:${v/top*100}%;background:${catColor("exp",c)}"></div></div><div class="rsub">${pv?`<span class="${d>0?"up":"down"}">${d>0?"▲":"▼"} $${fmt(Math.abs(d))}</span>`:`<span>上月沒有</span>`}${lim[c]?`<span>預算 $${fmt(lim[c])}${v>lim[c]?" · 超支":""}</span>`:""}</div></div></div>`}).join("")}</div>`:`<div class="emptyline">這個月還沒有支出</div>`}</div>`;
   const big=list.filter(x=>x.type!=="inc").sort((a,b)=>b.amount-a.amount).slice(0,3);
   if(big.length)h+=`<div class="card"><div class="card-h"><h2>最大的 ${big.length} 筆支出</h2></div><div class="rows">${big.map(x=>rowHTML(x,true)).join("")}</div></div>`;
-  const v=$("#v-stats");v.innerHTML=h;
+  const v=$("#v-stats");v.innerHTML=h;bindCards(v);
   $("#sPrev").onclick=()=>{S.smonth=pm;renderStats();animateView("back")};
   $("#sNext").onclick=()=>{if(isCur)return;S.smonth=shiftMonth(m,1);renderStats();animateView("fwd")};
   v.querySelectorAll(".tbar").forEach(g=>g.onclick=()=>{const k=g.dataset.m;if(k===m)return;const dir=k>m?"fwd":"back";S.smonth=k;renderStats();animateView(dir)});
   bindRows(v);
 }
 $("#closeSheet").onclick=closeSheet;$("#scrim").onclick=closeSheet;
-document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet();closeDlg($("#recSheet"),$("#recScrim"))}});
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet();closeDlg($("#recSheet"),$("#recScrim"));closeDlg($("#cardSheet"),$("#cardScrim"))}});
 $("#addBtn").onclick=()=>openSheet({});
 let prevView="home";
 $("#gear").onclick=()=>{if(S.view==="set")go(prevView);else{prevView=S.view;go("set")}};
