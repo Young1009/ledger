@@ -914,15 +914,16 @@ function renderSettings0(){
   v.querySelectorAll("[data-tadd]").forEach(b=>{const k=b.dataset.tadd,inp=$("#add-"+k);const f=()=>{const val=inp.value.trim();if(!val)return;if(S.settings[k].includes(val)){toast("「"+val+"」已經有了");return}S.settings[k].push(val);ensureColors();saveSettings();toast("已新增「"+val+"」")};b.onclick=f;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();f()}}});
   $("#expCsv").onclick=()=>exportFile("csv");$("#expJson").onclick=()=>exportFile("json");$("#impFile").onchange=importFile;
 }
-const APP_VER="4.1.3";
+const APP_VER="4.1.4";
 const CHANGELOG=[
+  {v:"4.1.4",d:"2026/11/04",items:["修正：匯入舊版備份後，關鍵字會被清空","匯入時保留你現有的關鍵字，並和備份檔裡的合併","舊備份沒有的新設定（例如信用卡）也會保留現在的設定"]},
   {v:"4.1.3",d:"2026/11/04",items:["設定頁的選項改成可以展開／收合，頁面變短了","輸入商店／說明時，依關鍵字或以前的紀錄自動選分類","點說明欄會跳出常記的項目，點一下帶入分類、帳戶和金額","設定新增「關鍵字自動分類」，可以自己加關鍵字","設定最上面新增這個更新摘要"]},
   {v:"4.1.2",d:"2026/11/03",items:["統計頁新增信用卡：可用額度、本期累積、上期帳單","卡費繳款截止前 3 天提醒","「今天還沒記帳」提醒改成晚上 9 點後","新增「2 分鐘後測試通知」按鈕"]},
   {v:"4.1.1",d:"2026/10/31",items:["新增統計頁與預算頁","固定收支自動記帳、分類預算","首頁常用項目、金額快捷鍵","App 內提醒與每日行事曆提醒","明細搜尋"]}];
 function whatsNewHTML(){const cur=CHANGELOG[0],seen=S.settings.seenVer===APP_VER;
   return`<div class="card whatsnew${seen?"":" fresh"}"><div class="card-h"><h2>${seen?"":`<span class="newdot" aria-hidden="true"></span>`}本次更新 · Ver${cur.v}</h2><span>${cur.d}</span></div>
     <ul class="wn">${cur.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
-    <details class="howto wnold"><summary>之前的更新</summary>${CHANGELOG.slice(1).map(c=>`<div class="wnv"><b>Ver${c.v}</b><span>${c.d}</span></div><ul class="wn">${c.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`).join("")}</details></div>`}
+    <details class="howto wnold"><summary>之前的更新</summary>${CHANGELOG.slice(1,3).map(c=>`<div class="wnv"><b>Ver${c.v}</b><span>${c.d}</span></div><ul class="wn">${c.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`).join("")}</details></div>`}
 const THEMES=[["blue","海洋藍","#2374BA"],["green","森林綠","#1F8A5B"],["teal","湖水綠","#0E7C86"],["purple","薰衣紫","#6B4FBF"],["pink","櫻花粉","#CC4880"],["orange","夕陽橘","#D2662A"]];
 let GEAR="";const BACK=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
 function applyLook(){const r=document.documentElement,a=S.settings.accent||"blue",b=S.settings.bg||"auto";
@@ -950,7 +951,11 @@ async function importFile(e){
   const f=e.target.files&&e.target.files[0];e.target.value="";if(!f)return;let o;try{o=JSON.parse(await f.text())}catch(err){toast("這不是備份檔");return}
   if(!o||!Array.isArray(o.tx)){toast("檔案裡找不到記帳紀錄");return}
   exitSample();const have=new Set(S.tx.map(t=>t.id));const add=o.tx.filter(t=>t&&t.date&&t.amount!=null).map(t=>({...t,id:t.id||uid()})).filter(t=>!have.has(t.id));
-  if(o.settings)S.settings={...clone(DEFAULTS),...o.settings};ensureColors();S.tx.push(...add);lsSave();render();toast(`匯入完成：${add.length} 筆`);
+  if(o.settings){const cur=S.settings,ns={...clone(DEFAULTS),...cur,...o.settings};
+    const mine=Array.isArray(cur.keywords)?cur.keywords:[],theirs=Array.isArray(o.settings.keywords)?o.settings.keywords:[];
+    const kwm=new Map();[...mine,...theirs].forEach(k=>{if(k&&k.kw)kwm.set(k.kw,k)});ns.keywords=[...kwm.values()];
+    if(!ns.keywords.length)delete ns.keywords;S.settings=ns}
+  ensureColors();ensureKeywords();S.tx.push(...add);lsSave();render();toast(`匯入完成：${add.length} 筆`);
 }
 
 /* entry sheet */
