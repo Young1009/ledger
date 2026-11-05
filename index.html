@@ -355,6 +355,11 @@ main .wrap.go-back>section>*,main .wrap.go-back>#bannerSlot{animation:inL .42s c
 .nav[aria-current="page"]{background:none!important;box-shadow:none!important}
 .nav:active{transform:scale(.95)}
 @media (prefers-reduced-motion:reduce){main .wrap.go-fwd>section>*,main .wrap.go-back>section>*,main .wrap.go-fwd>#bannerSlot,main .wrap.go-back>#bannerSlot,#gearIc.morph{animation:none}.navpill{transition:none}}
+.syncst{display:flex;align-items:center;gap:8px;font-size:14px;margin:0 0 12px}.syncst i{width:9px;height:9px;border-radius:50%;background:var(--muted);flex:none}.syncst.ok i{background:#2E9A5F}.syncst.busy i{background:var(--accent);animation:syncblink 1s linear infinite}.syncst.err i{background:var(--danger)}.syncst.err{color:var(--danger)}
+.syncf{display:grid;gap:8px;margin-bottom:10px}
+.syncg{width:100%;display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px}.syncg b{font:900 16px/1 Arial,sans-serif;color:#4285F4}
+.syncor{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);margin:12px 0 10px}.syncor::before,.syncor::after{content:"";flex:1;height:1px;background:var(--line)}
+@keyframes syncblink{50%{opacity:.3}}
 .ver{margin:2px 0 0;text-align:center;font-size:12px;color:var(--muted);letter-spacing:.04em}
 
 /* search */
@@ -683,7 +688,8 @@ function toast(msg,action){const t=$("#toast");t.textContent=msg;if(action){cons
 /* storage (same format as before, so existing data carries over) */
 const LS_KEY="pocket-ledger-v1";
 function lsLoad(){try{const r=localStorage.getItem(LS_KEY);return r?JSON.parse(r):null}catch(e){return null}}
-function lsSave(){try{localStorage.setItem(LS_KEY+"-look",JSON.stringify({accent:S.settings.accent,bg:S.settings.bg}))}catch(e){}if(S.sample)return;try{localStorage.setItem(LS_KEY,JSON.stringify({tx:S.tx,settings:S.settings}))}catch(e){}}
+function lsSave(){try{localStorage.setItem(LS_KEY+"-look",JSON.stringify({accent:S.settings.accent,bg:S.settings.bg}))}catch(e){}if(S.sample)return;markChanges();lsWrite();syncSoon()}
+function lsWrite(){try{localStorage.setItem(LS_KEY,JSON.stringify({tx:S.tx,settings:S.settings,del:S.del,setU:S.setU}))}catch(e){}}
 function sampleData(){
   const now=new Date(),out=[];
   const items=[["餐飲","早餐蛋餅",55,"現金",8],["餐飲","午餐便當",95,"現金",12],["餐飲","晚餐牛肉麵",160,"信用卡",19],["餐飲","手搖飲",65,"一卡通",15],["交通","捷運",35,"一卡通",9],["交通","加油",420,"信用卡",18],["購物","全聯日用品",386,"信用卡",20],["娛樂","電影票",310,"信用卡",21],["居家","電費",880,"銀行",10],["學習","線上課程",590,"信用卡",22]];
@@ -698,7 +704,7 @@ function demoSettings(){const cur=ym(new Date());
   Object.assign(S.settings,{_demo:true,budget:36000,catBudget:{"餐飲":6500,"交通":2500,"購物":3000,"娛樂":2500},
     favs:[{id:"f1",type:"exp",name:"早餐蛋餅",cat:"餐飲",acct:"現金",amount:55},{id:"f2",type:"exp",name:"捷運",cat:"交通",acct:"一卡通",amount:35},{id:"f3",type:"exp",name:"手搖飲",cat:"餐飲",acct:"一卡通",amount:65},{id:"f4",type:"exp",name:"午餐便當",cat:"餐飲",acct:"現金",amount:95}],
     recurring:[{id:"r1",type:"exp",name:"房租",amount:12000,cat:"居家",acct:"銀行",day:1,next:shiftMonth(cur,-5)},{id:"r2",type:"exp",name:"Netflix",amount:390,cat:"娛樂",acct:"信用卡",day:15,next:shiftMonth(cur,-5)}],cards:[{id:"c1",acct:"信用卡",limit:60000,closeDay:5,dueDay:20,paid:{}}]})}
-function init(){const saved=lsLoad();if(saved&&saved.tx){S.tx=saved.tx;S.settings={...clone(DEFAULTS),...saved.settings}}else{S.tx=sampleData();S.sample=true;demoSettings();try{const lk=JSON.parse(localStorage.getItem(LS_KEY+"-look")||"null");if(lk)Object.assign(S.settings,lk)}catch(e){}}ensureColors();ensureKeywords();applyLook();const nr=runRecurring();render();if(nr&&!S.sample)toast(`已自動記入 ${nr} 筆固定收支`)}
+function init(){const saved=lsLoad();if(saved&&saved.tx){S.tx=saved.tx;S.settings={...clone(DEFAULTS),...saved.settings}}else{S.tx=sampleData();S.sample=true;demoSettings();try{const lk=JSON.parse(localStorage.getItem(LS_KEY+"-look")||"null");if(lk)Object.assign(S.settings,lk)}catch(e){}}S.del=(saved&&saved.del)||{};S.setU=(saved&&saved.setU)||0;ensureColors();ensureKeywords();snapTake();applyLook();const nr=runRecurring();render();if(syncWanted())fbInit();if(nr&&!S.sample)toast(`已自動記入 ${nr} 筆固定收支`)}
 function putTx(t){const i=S.tx.findIndex(x=>x.id===t.id);if(i>=0)S.tx[i]=t;else S.tx.push(t);lsSave();render()}
 function delTx(id){const t=S.tx.find(x=>x.id===id);S.tx=S.tx.filter(x=>x.id!==id);lsSave();render();return t}
 function saveSettings(){lsSave();render()}
@@ -874,7 +880,7 @@ function foldCards(v){const st=foldState();
     const tog=()=>{const o=!c.classList.contains("open");c.classList.toggle("open",o);hd.setAttribute("aria-expanded",o);inner.inert=!o;const s=foldState();s[key]=o;foldSave(s)};
     hd.onclick=e=>{if(e.target.closest("button,a,input,select,label"))return;tog()};
     hd.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tog()}}})}
-function renderSettings(){renderSettings0();foldCards($("#v-set"))}
+function renderSettings(){renderSettings0();bindSync();foldCards($("#v-set"))}
 function renderSettings0(){
   const v=$("#v-set");
   v.innerHTML=`${whatsNewHTML()}<div class="card"><div class="card-h"><h2>外觀</h2></div>
@@ -895,7 +901,8 @@ function renderSettings0(){
   <div class="card"><div class="card-h"><h2>支出分類</h2><span>點圓點可以換顏色</span></div><div class="tags">${tagList("exp")}</div><div class="addrow"><input class="inp" id="add-exp" placeholder="新增分類，例如：寵物" maxlength="8"><button class="btn" data-tadd="exp" type="button">新增</button></div></div>
   <div class="card"><div class="card-h"><h2>收入分類</h2><span>點圓點可以換顏色</span></div><div class="tags">${tagList("inc")}</div><div class="addrow"><input class="inp" id="add-inc" placeholder="新增分類，例如：紅包" maxlength="8"><button class="btn" data-tadd="inc" type="button">新增</button></div></div>
   <div class="card"><div class="card-h"><h2>帳戶</h2></div><div class="tags">${tagList("accounts")}</div><div class="addrow"><input class="inp" id="add-accounts" placeholder="新增帳戶，例如：Line Pay" maxlength="10"><button class="btn" data-tadd="accounts" type="button">新增</button></div></div>
-  <div class="card" id="bakCard"><div class="card-h"><h2>備份與匯出</h2></div><p class="note">資料只存在這支手機裡。建議每月匯出一次備份。</p><div class="btns"><button class="btn" type="button" id="expCsv">匯出 Excel 用 CSV</button><button class="btn" type="button" id="expJson">匯出完整備份</button><label class="btn" for="impFile">匯入備份</label><input type="file" id="impFile" accept=".json,application/json" hidden></div><div id="expOut"></div></div>
+  ${syncCardHTML()}
+  <div class="card" id="bakCard"><div class="card-h"><h2>備份與匯出</h2></div><p class="note">${SYNC.user?"已開啟雲端同步，資料會自動存到雲端。也可以另外匯出一份備份檔。":"資料只存在這支手機裡。建議開啟上面的雲端同步，或每月匯出一次備份。"}</p><div class="btns"><button class="btn" type="button" id="expCsv">匯出 Excel 用 CSV</button><button class="btn" type="button" id="expJson">匯出完整備份</button><label class="btn" for="impFile">匯入備份</label><input type="file" id="impFile" accept=".json,application/json" hidden></div><div id="expOut"></div></div>
   <p class="ver">Ver${APP_VER}</p>`;
   v.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>{const k=ckey(b.dataset.cc,b.dataset.c);S.settings.colors[k]=((S.settings.colors[k]??0)+1)%NCOL;saveSettings()});
   v.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>{S.settings.accent=b.dataset.acc;applyLook();saveSettings()});
@@ -914,8 +921,9 @@ function renderSettings0(){
   v.querySelectorAll("[data-tadd]").forEach(b=>{const k=b.dataset.tadd,inp=$("#add-"+k);const f=()=>{const val=inp.value.trim();if(!val)return;if(S.settings[k].includes(val)){toast("「"+val+"」已經有了");return}S.settings[k].push(val);ensureColors();saveSettings();toast("已新增「"+val+"」")};b.onclick=f;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();f()}}});
   $("#expCsv").onclick=()=>exportFile("csv");$("#expJson").onclick=()=>exportFile("json");$("#impFile").onchange=importFile;
 }
-const APP_VER="4.1.4";
+const APP_VER="4.2.0";
 const CHANGELOG=[
+  {v:"4.2.0",d:"2026/11/06",items:["新增免費雲端同步：用 Google 帳號或 Email 登入後，每次記帳自動存到雲端","換手機或刪掉 App 後，登入同一個帳號就能拿回所有資料","多支手機登入同一個帳號，資料會自動合併"]},
   {v:"4.1.4",d:"2026/11/04",items:["修正：匯入舊版備份後，關鍵字會被清空","匯入時保留你現有的關鍵字，並和備份檔裡的合併","舊備份沒有的新設定（例如信用卡）也會保留現在的設定"]},
   {v:"4.1.3",d:"2026/11/04",items:["設定頁的選項改成可以展開／收合，頁面變短了","輸入商店／說明時，依關鍵字或以前的紀錄自動選分類","點說明欄會跳出常記的項目，點一下帶入分類、帳戶和金額","設定新增「關鍵字自動分類」，可以自己加關鍵字","設定最上面新增這個更新摘要"]},
   {v:"4.1.2",d:"2026/11/03",items:["統計頁新增信用卡：可用額度、本期累積、上期帳單","卡費繳款截止前 3 天提醒","「今天還沒記帳」提醒改成晚上 9 點後","新增「2 分鐘後測試通知」按鈕"]},
@@ -935,6 +943,79 @@ function animateView(dir){const w=$("main .wrap");w.classList.remove("go-fwd","g
   const b=$("#bannerSlot");if(b)b.style.setProperty("--k",0);
   clearTimeout(animateView._t);animateView._t=setTimeout(()=>w.classList.remove("go-fwd","go-back"),900)}
 function go(v){if(v===S.view){window.scrollTo({top:0,behavior:"smooth"});return}if(S.view==="list"&&v!=="list"){S.q="";const qq=$("#q");if(qq)qq.value=""}const dir=ORDER[v]>ORDER[S.view]?"fwd":"back";S.view=v;if(v==="list")S.month=S.month||ym(new Date());render();window.scrollTo(0,0);animateView(dir)}
+
+/* ===== cloud sync (Firebase, free Spark plan) ===== */
+const FB_CFG={apiKey:"AIzaSyBImokrN5sdYWf8UgDOVPfjCMW58RGT2Mc",authDomain:"ledger-d4d80.firebaseapp.com",projectId:"ledger-d4d80",storageBucket:"ledger-d4d80.firebasestorage.app",messagingSenderId:"478252807174",appId:"1:478252807174:web:bccdf42b59e3c633a03f87"};
+const FBV="10.12.2";
+const SYNC={user:null,busy:false,last:0,err:"",ready:false,loading:null,timer:0,again:false};
+let SNAP=null;
+function snapTake(){const m=new Map();S.tx.forEach(t=>m.set(t.id,JSON.stringify(t)));SNAP={m,set:JSON.stringify(S.settings)}}
+function markChanges(){if(!SNAP){snapTake();return}const now=Date.now(),cur=new Set();S.del=S.del||{};
+  S.tx.forEach(t=>{cur.add(t.id);if(SNAP.m.get(t.id)!==JSON.stringify(t))t.u=now});
+  SNAP.m.forEach((_,id)=>{if(!cur.has(id))S.del[id]=now});
+  if(JSON.stringify(S.settings)!==SNAP.set)S.setU=now;snapTake()}
+function mergeData(L,R){const del={...(R.del||{})},old=Date.now()-400*864e5;
+  for(const[k,v]of Object.entries(L.del||{}))if(!(del[k]>=v))del[k]=v;
+  for(const k in del)if(del[k]<old)delete del[k];
+  const m=new Map();for(const t of[...(R.tx||[]),...(L.tx||[])]){if(!t||!t.id)continue;const o=m.get(t.id);if(!o||(t.u||0)>=(o.u||0))m.set(t.id,t)}
+  const tx=[...m.values()].filter(t=>!(del[t.id]>=(t.u||0)));
+  const lw=(L.setU||0)>=(R.setU||0);
+  return{tx,settings:lw?L.settings:R.settings,del,setU:Math.max(L.setU||0,R.setU||0)}}
+function syncWanted(){try{return!!FB_CFG&&localStorage.getItem(LS_KEY+"-sync")==="1"}catch(e){return false}}
+function loadScript(src){return new Promise((ok,no)=>{const s=document.createElement("script");s.src=src;s.onload=ok;s.onerror=()=>no(new Error("load"));document.head.appendChild(s)})}
+function fbInit(){if(!FB_CFG)return Promise.resolve(false);if(SYNC.ready)return Promise.resolve(true);if(SYNC.loading)return SYNC.loading;
+  SYNC.loading=(async()=>{const b=`https://www.gstatic.com/firebasejs/${FBV}/`;await loadScript(b+"firebase-app-compat.js");
+    await Promise.all([loadScript(b+"firebase-auth-compat.js"),loadScript(b+"firebase-firestore-compat.js")]);
+    if(!firebase.apps.length)firebase.initializeApp(FB_CFG);SYNC.auth=firebase.auth();SYNC.db=firebase.firestore();SYNC.ready=true;
+    SYNC.auth.onAuthStateChanged(u=>{const was=SYNC.user;SYNC.user=u;
+      if(u){try{localStorage.setItem(LS_KEY+"-sync","1")}catch(e){}if(S.sample){exitSample();S.del={};S.setU=0;snapTake()}syncNow()}
+      if(!!was!==!!u&&S.view==="set")renderSettings();else syncUI()});
+    return true})().catch(e=>{SYNC.loading=null;SYNC.err="連不上雲端，請確認網路";syncUI();return false});
+  return SYNC.loading}
+function syncSoon(ms){if(!SYNC.user)return;clearTimeout(SYNC.timer);SYNC.timer=setTimeout(syncNow,ms??2500)}
+function syncErr(e){const c=(e&&e.code)||"";
+  return({"auth/invalid-credential":"Email 或密碼不對","auth/wrong-password":"Email 或密碼不對","auth/user-not-found":"這個 Email 還沒註冊，請按「建立帳號」","auth/invalid-login-credentials":"Email 或密碼不對",
+  "auth/email-already-in-use":"這個 Email 已經註冊過，請直接登入","auth/weak-password":"密碼至少要 6 個字","auth/invalid-email":"Email 格式不對","auth/missing-password":"請輸入密碼",
+  "auth/popup-closed-by-user":"已取消 Google 登入","auth/cancelled-popup-request":"已取消 Google 登入","auth/user-cancelled":"已取消 Google 登入","auth/unauthorized-domain":"這個網址還沒加入 Firebase 授權網域","auth/operation-not-allowed":"這種登入方式還沒在 Firebase 開啟","auth/account-exists-with-different-credential":"這個 Email 已用其他方式註冊，請改用 Email 登入","auth/network-request-failed":"網路連線失敗","auth/too-many-requests":"嘗試太多次，請稍後再試","permission-denied":"雲端權限設定有誤","unavailable":"目前離線，連上網路後會自動同步"})[c]||("同步失敗："+(c||e&&e.message||e))}
+async function syncNow(){if(!SYNC.user||S.sample)return;if(SYNC.busy){SYNC.again=true;return}
+  SYNC.busy=true;SYNC.err="";syncUI();
+  try{const ref=SYNC.db.collection("users").doc(SYNC.user.uid),snap=await ref.get();
+    const L={tx:S.tx,settings:S.settings,del:S.del||{},setU:S.setU||0},lj=JSON.stringify(L);
+    let R=null,rj="";if(snap.exists){rj=snap.data().d||"";try{R=JSON.parse(rj)}catch(e){R=null}}
+    const M=R?mergeData(L,R):L,mj=JSON.stringify(M);
+    if(mj!==lj){S.tx=M.tx;S.settings={...clone(DEFAULTS),...M.settings};S.del=M.del;S.setU=M.setU;ensureColors();ensureKeywords();applyLook();snapTake();lsWrite();render()}
+    if(mj!==rj){if(mj.length>950000)throw{code:"",message:"資料超過雲端單筆上限"};await ref.set({d:mj,at:Date.now(),v:APP_VER})}
+    SYNC.last=Date.now()}catch(e){SYNC.err=syncErr(e)}
+  finally{SYNC.busy=false;syncUI();if(SYNC.again){SYNC.again=false;syncSoon(300)}}}
+function syncStatus(){if(SYNC.signing)return["busy","連線中…"];if(SYNC.busy)return["busy","同步中…"];if(SYNC.err)return["err",SYNC.err];
+  if(SYNC.last){const d=new Date(SYNC.last);return["ok",`已同步 · ${d.getHours()}:${String(d.getMinutes()).padStart(2,"0")}`]}return["",SYNC.user?"準備同步…":"尚未登入"]}
+function syncCardHTML(){if(!FB_CFG)return`<div class="card" id="syncCard"><div class="card-h"><h2>雲端同步</h2><span>尚未啟用</span></div><p class="note" style="margin:0">雲端同步還在設定中，啟用後會出現在這裡。</p></div>`;
+  const[cl,tx]=syncStatus();
+  if(SYNC.user)return`<div class="card" id="syncCard"><div class="card-h"><h2>雲端同步</h2><span>已開啟</span></div><p class="syncst ${cl}" id="syncSt"><i></i><span>${esc(tx)}</span></p><p class="note">帳號：${esc(SYNC.user.email||"")}<br>每次記帳都會自動存到雲端。換手機或刪掉 App 後，用同一個帳號登入就能拿回資料。</p><div class="btns"><button class="btn" type="button" id="syncGo">立即同步</button><button class="btn" type="button" id="syncOut">登出</button></div></div>`;
+  return`<div class="card" id="syncCard"><div class="card-h"><h2>雲端同步</h2><span>免費 · 自動備份</span></div><p class="note">登入後，每次記帳都會自動存到雲端。換手機或刪掉 App 也不怕，用同一個帳號登入就能拿回資料。</p>
+    <button class="btn syncg" type="button" id="syncG"><b>G</b>用 Google 帳號登入</button><div class="syncor">或用 Email</div>
+    <div class="syncf"><input class="inp" id="syncEm" type="email" inputmode="email" autocomplete="username" placeholder="Email" autocapitalize="off"><input class="inp" id="syncPw" type="password" autocomplete="current-password" placeholder="密碼（至少 6 個字）"></div>
+    <p class="syncst ${cl}" id="syncSt"${SYNC.err?"":" hidden"}><i></i><span>${esc(tx)}</span></p>
+    <div class="btns"><button class="btn primary" type="button" id="syncIn">登入</button><button class="btn" type="button" id="syncUp">建立帳號</button><button class="linkbtn" type="button" id="syncFg">忘記密碼</button></div></div>`}
+function syncUI(){const el=$("#syncSt");if(!el)return;const[cl,tx]=syncStatus();el.className="syncst "+cl;el.lastElementChild.textContent=tx;el.hidden=!SYNC.user&&!SYNC.err&&!SYNC.busy&&!SYNC.signing}
+function bindSync(){if(!FB_CFG)return;const g=id=>$("#"+id);
+  if(SYNC.user){g("syncGo").onclick=()=>syncNow();g("syncOut").onclick=async()=>{await SYNC.auth.signOut();try{localStorage.removeItem(LS_KEY+"-sync")}catch(e){}SYNC.last=0;SYNC.err="";toast("已登出，資料還留在這支手機")};return}
+  const run=async fn=>{const em=g("syncEm").value.trim(),pw=g("syncPw").value;if(!em){toast("請輸入 Email");return}
+    SYNC.signing=true;SYNC.err="";syncUI();const ok=await fbInit();if(!ok){SYNC.signing=false;syncUI();return}
+    try{const msg=await fn(em,pw);SYNC.signing=false;syncUI();toast(msg||"已登入，開始同步")}catch(e){SYNC.signing=false;SYNC.err=syncErr(e);syncUI()}};
+  g("syncIn").onclick=()=>run((em,pw)=>SYNC.auth.signInWithEmailAndPassword(em,pw));
+  g("syncUp").onclick=()=>run((em,pw)=>SYNC.auth.createUserWithEmailAndPassword(em,pw));
+  g("syncFg").onclick=()=>run(async em=>{await SYNC.auth.sendPasswordResetEmail(em);return"已寄出重設密碼信，請到信箱收信"});
+  g("syncG").onclick=async()=>{SYNC.signing=true;SYNC.err="";syncUI();const ok=await fbInit();if(!ok){SYNC.signing=false;syncUI();return}
+    const pv=new firebase.auth.GoogleAuthProvider();pv.setCustomParameters({prompt:"select_account"});
+    const tm=setTimeout(()=>{if(SYNC.signing&&!SYNC.user){SYNC.signing=false;SYNC.err="Google 登入沒有完成。如果一直卡住，請改用下面的 Email 登入";syncUI()}},90000);
+    try{await SYNC.auth.signInWithPopup(pv);clearTimeout(tm);SYNC.signing=false;syncUI();toast("已登入，開始同步")}
+    catch(e){clearTimeout(tm);const c=e&&e.code;
+      if(c==="auth/popup-blocked"||c==="auth/operation-not-supported-in-this-environment"){try{localStorage.setItem(LS_KEY+"-sync","1");await SYNC.auth.signInWithRedirect(pv);return}catch(e2){e=e2}}
+      SYNC.signing=false;SYNC.err=syncErr(e);syncUI()}};
+  g("syncPw").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();g("syncIn").click()}}}
+window.addEventListener("online",()=>syncSoon(500));
+setInterval(()=>{if(document.visibilityState==="visible")syncSoon(0)},90000);
 
 /* export / import */
 function buildCsv(){const rows=[["日期","時間","類型","分類","名稱","金額","帳戶"]];[...S.tx].sort((a,b)=>a.date.localeCompare(b.date)).forEach(t=>rows.push([t.date,timeOf(t),t.type==="inc"?"收入":"支出",t.cat,t.note||"",t.amount,t.acct||""]));return"﻿"+rows.map(r=>r.map(c=>{c=String(c);return/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c}).join(",")).join("\n")}
@@ -1180,7 +1261,7 @@ function runRecurring(){const now=new Date(),cur=ym(now);let n=0;
 function dlgOpen(){return[...document.querySelectorAll(".sheet")].some(s=>!s.hidden)}
 let remSig="";function remKeys(){try{return getReminders().map(r=>r.key).join("|")}catch(e){return""}}
 function refreshHome(force){if(S.view!=="home"||dlgOpen())return;const k=remKeys();if(force||k!==remSig){remSig=k;render()}}
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){const n=runRecurring();if(n){render();toast(`已自動記入 ${n} 筆固定收支`)}else refreshHome(true)}});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){syncSoon(400);const n=runRecurring();if(n){render();toast(`已自動記入 ${n} 筆固定收支`)}else refreshHome(true)}});
 window.addEventListener("pageshow",e=>{if(e.persisted)refreshHome(true)});
 setInterval(()=>{if(document.visibilityState==="visible")refreshHome(false)},60000);
 function nextDue(r){const now=new Date(),cur=ym(now);let m=r.next||cur;const d=Math.min(r.day,daysIn(m));return`${+m.slice(5)}/${d}`}

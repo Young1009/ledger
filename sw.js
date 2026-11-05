@@ -1,5 +1,5 @@
 // 口袋記帳本：離線快取。更新網站時把版本號 +1。
-const CACHE = "pocket-ledger-v4-1-4";
+const CACHE = "pocket-ledger-v4-2-0";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icon-180.png", "icon-192.png", "icon-512.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting()));
@@ -18,8 +18,8 @@ self.addEventListener("fetch", e => {
     }).catch(() => caches.match(req).then(r => r || caches.match("index.html"))));
     return;
   }
-  // 字型：先用快取
-  if (url.host.endsWith("googleapis.com") || url.host.endsWith("gstatic.com")) {
+  // 字型與雲端同步程式庫：先用快取（雲端資料本身不快取）
+  if (url.host === "fonts.googleapis.com" || url.host === "fonts.gstatic.com" || (url.host === "www.gstatic.com" && url.pathname.startsWith("/firebasejs/"))) {
     e.respondWith(caches.match(req).then(r => r || fetch(req).then(res => {
       const copy = res.clone(); caches.open(CACHE).then(c => c.put(req, copy)); return res;
     })));
