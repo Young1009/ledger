@@ -923,7 +923,7 @@ function renderSettings0(){
 }
 const APP_VER="4.2.0";
 const CHANGELOG=[
-  {v:"4.2.0",d:"2026/11/06",items:["新增免費雲端同步：用 Google 帳號或 Email 登入後，每次記帳自動存到雲端","換手機或刪掉 App 後，登入同一個帳號就能拿回所有資料","多支手機登入同一個帳號，資料會自動合併"]},
+  {v:"4.2.0",d:"2026/11/06",items:["新增免費雲端同步：用 Google 帳號或 Email 登入後，每次記帳自動存到雲端","換手機或刪掉 App 後，登入同一個帳號就能拿回所有資料","多支手機登入同一個帳號，資料會自動合併","雲端資料按年份分開存放，記再多年也不會超過上限"]},
   {v:"4.1.4",d:"2026/11/04",items:["修正：匯入舊版備份後，關鍵字會被清空","匯入時保留你現有的關鍵字，並和備份檔裡的合併","舊備份沒有的新設定（例如信用卡）也會保留現在的設定"]},
   {v:"4.1.3",d:"2026/11/04",items:["設定頁的選項改成可以展開／收合，頁面變短了","輸入商店／說明時，依關鍵字或以前的紀錄自動選分類","點說明欄會跳出常記的項目，點一下帶入分類、帳戶和金額","設定新增「關鍵字自動分類」，可以自己加關鍵字","設定最上面新增這個更新摘要"]},
   {v:"4.1.2",d:"2026/11/03",items:["統計頁新增信用卡：可用額度、本期累積、上期帳單","卡費繳款截止前 3 天提醒","「今天還沒記帳」提醒改成晚上 9 點後","新增「2 分鐘後測試通知」按鈕"]},
@@ -976,15 +976,35 @@ function syncSoon(ms){if(!SYNC.user)return;clearTimeout(SYNC.timer);SYNC.timer=s
 function syncErr(e){const c=(e&&e.code)||"";
   return({"auth/invalid-credential":"Email 或密碼不對","auth/wrong-password":"Email 或密碼不對","auth/user-not-found":"這個 Email 還沒註冊，請按「建立帳號」","auth/invalid-login-credentials":"Email 或密碼不對",
   "auth/email-already-in-use":"這個 Email 已經註冊過，請直接登入","auth/weak-password":"密碼至少要 6 個字","auth/invalid-email":"Email 格式不對","auth/missing-password":"請輸入密碼",
-  "auth/popup-closed-by-user":"已取消 Google 登入","auth/cancelled-popup-request":"已取消 Google 登入","auth/user-cancelled":"已取消 Google 登入","auth/unauthorized-domain":"這個網址還沒加入 Firebase 授權網域","auth/operation-not-allowed":"這種登入方式還沒在 Firebase 開啟","auth/account-exists-with-different-credential":"這個 Email 已用其他方式註冊，請改用 Email 登入","auth/network-request-failed":"網路連線失敗","auth/too-many-requests":"嘗試太多次，請稍後再試","permission-denied":"雲端權限設定有誤","unavailable":"目前離線，連上網路後會自動同步"})[c]||("同步失敗："+(c||e&&e.message||e))}
+  "auth/popup-closed-by-user":"已取消 Google 登入","auth/cancelled-popup-request":"已取消 Google 登入","auth/user-cancelled":"已取消 Google 登入","auth/unauthorized-domain":"這個網址還沒加入 Firebase 授權網域","auth/operation-not-allowed":"這種登入方式還沒在 Firebase 開啟","auth/account-exists-with-different-credential":"這個 Email 已用其他方式註冊，請改用 Email 登入","auth/network-request-failed":"網路連線失敗","auth/too-many-requests":"嘗試太多次，請稍後再試","permission-denied":"雲端權限設定有誤（請檢查 Firestore 規則）","app/old":"雲端資料是用較新版本存的，請先更新 App（完全關掉再打開）","app/big":"某一年的資料太多，超過雲端單份上限","unavailable":"目前離線，連上網路後會自動同步"})[c]||("同步失敗："+(c||e&&e.message||e))}
+/* cloud layout (schema 2): users/{uid} = {schema, s:{settings,del,setU}}, users/{uid}/years/{YYYY} = {d:[tx...]} */
+const SCHEMA=2;
+function yearOf(t){const y=String(t&&t.date||"").slice(0,4);return /^\d{4}$/.test(y)?y:"0000"}
+function bytesOf(x){return new TextEncoder().encode(x).length}
+function normData(o){return JSON.stringify({...o,tx:[...(o.tx||[])].sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0)})}
 async function syncNow(){if(!SYNC.user||S.sample)return;if(SYNC.busy){SYNC.again=true;return}
   SYNC.busy=true;SYNC.err="";syncUI();
-  try{const ref=SYNC.db.collection("users").doc(SYNC.user.uid),snap=await ref.get();
-    const L={tx:S.tx,settings:S.settings,del:S.del||{},setU:S.setU||0},lj=JSON.stringify(L);
-    let R=null,rj="";if(snap.exists){rj=snap.data().d||"";try{R=JSON.parse(rj)}catch(e){R=null}}
-    const M=R?mergeData(L,R):L,mj=JSON.stringify(M);
-    if(mj!==lj){S.tx=M.tx;S.settings={...clone(DEFAULTS),...M.settings};S.del=M.del;S.setU=M.setU;ensureColors();ensureKeywords();applyLook();snapTake();lsWrite();render()}
-    if(mj!==rj){if(mj.length>950000)throw{code:"",message:"資料超過雲端單筆上限"};await ref.set({d:mj,at:Date.now(),v:APP_VER})}
+  try{const uref=SYNC.db.collection("users").doc(SYNC.user.uid),yref=uref.collection("years");
+    const ms=await uref.get(),md=ms.exists?ms.data():null;
+    if(md&&(md.schema||1)>SCHEMA)throw{code:"app/old"};
+    const ys=await yref.get();
+    const L={tx:S.tx,settings:S.settings,del:S.del||{},setU:S.setU||0};
+    let R={tx:[],settings:null,del:{},setU:-1};const ry={};
+    const addDel=d=>{for(const[k,v]of Object.entries(d||{}))if(!(R.del[k]>=v))R.del[k]=v};
+    if(md&&md.d){try{const o=JSON.parse(md.d);R.tx.push(...(o.tx||[]));R.settings=o.settings||null;R.setU=o.setU||0;addDel(o.del)}catch(e){}}
+    if(md&&md.s){try{const o=JSON.parse(md.s);if((o.setU||0)>=R.setU){R.settings=o.settings;R.setU=o.setU||0}addDel(o.del)}catch(e){}}
+    ys.forEach(d=>{const j=(d.data()||{}).d||"[]";ry[d.id]=j;try{R.tx.push(...JSON.parse(j))}catch(e){}});
+    if(!R.settings&&!R.tx.length)R=null;else if(!R.settings){R.settings=L.settings;R.setU=-1}
+    const M=R?mergeData(L,R):L;
+    if(normData(M)!==normData(L)){S.tx=M.tx;S.settings={...clone(DEFAULTS),...M.settings};S.del=M.del;S.setU=M.setU;ensureColors();ensureKeywords();applyLook();snapTake();lsWrite();render()}
+    const groups={};M.tx.forEach(t=>{const y=yearOf(t);(groups[y]=groups[y]||[]).push(t)});
+    const batch=SYNC.db.batch();let n=0;
+    for(const y of new Set([...Object.keys(groups),...Object.keys(ry)])){
+      const arr=(groups[y]||[]).sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0),j=JSON.stringify(arr);
+      if(j!==ry[y]){if(bytesOf(j)>900000)throw{code:"app/big",message:y};batch.set(yref.doc(y),{d:j,n:arr.length,at:Date.now()});n++}}
+    const sj=JSON.stringify({settings:M.settings,del:M.del,setU:M.setU});
+    if(!md||md.schema!==SCHEMA||md.d!==undefined||md.s!==sj){if(bytesOf(sj)>900000)throw{code:"app/big",message:"設定"};batch.set(uref,{schema:SCHEMA,s:sj,at:Date.now(),v:APP_VER});n++}
+    if(n)await batch.commit();
     SYNC.last=Date.now()}catch(e){SYNC.err=syncErr(e)}
   finally{SYNC.busy=false;syncUI();if(SYNC.again){SYNC.again=false;syncSoon(300)}}}
 function syncStatus(){if(SYNC.signing)return["busy","連線中…"];if(SYNC.busy)return["busy","同步中…"];if(SYNC.err)return["err",SYNC.err];
