@@ -15,6 +15,7 @@
 <link rel="icon" href="icon-192.png">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.4 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap">
+<script>document.documentElement.setAttribute("data-ios","27")</script>
 <style>
 /* Layout: phone-first ledger — home (hero balance, quick-category grid, donut + income cards, recent list), day-by-day detail page, settings page; bottom nav with a raised center add button */
 :root{
@@ -615,6 +616,335 @@ select option{background:var(--surface);color:var(--ink)}
 .card.fold.open .cin{opacity:1}
 .cin>:first-child{margin-top:28px}
 @media (prefers-reduced-motion:reduce){.cbody,.cin,.chevc{transition:none}}
+
+/* ===== iOS 27 style settings (inset grouped list + push) ===== */
+.ios-list{display:grid;gap:26px;margin-top:4px}
+.ios-sec{display:grid}
+.ios-sec .h{font-size:13px;line-height:18px;color:var(--muted);padding:0 16px 7px;letter-spacing:.02em}
+.ios-sec .f{font-size:13px;line-height:18px;color:var(--muted);padding:7px 16px 0}
+.ios-grp{background:var(--surface);border-radius:26px;overflow:hidden}
+.ios-cell{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:52px;padding:8px 14px 8px 16px;border:0;background:none;text-align:left;color:var(--ink);font-size:16.5px;cursor:pointer;transition:background .15s}
+.ios-cell:active{background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.ios-cell+.ios-cell::before{content:"";position:absolute;top:0;right:0;left:58px;height:.5px;background:var(--line)}
+.ios-ic{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;color:#fff;flex:none}
+.ios-ic svg{width:18px;height:18px}
+.ios-cell .tx{flex:1;min-width:0;display:grid}
+.ios-cell .tx b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ios-cell .tx small{font-size:13.5px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ios-cell .val{color:var(--muted);font-size:15.5px;white-space:nowrap;max-width:45%;overflow:hidden;text-overflow:ellipsis}
+.ios-cell .chev{width:8px;height:14px;color:var(--muted);opacity:.6;flex:none}
+.ios-cell .dot{width:8px;height:8px;border-radius:50%;background:var(--danger);flex:none}
+.ios-prof{min-height:76px;padding:12px 14px 12px 16px}
+.ios-prof .av{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;font-size:21px;font-weight:700;color:#fff;background:linear-gradient(160deg,color-mix(in srgb,var(--accent) 70%,#fff),var(--accent));flex:none}
+.ios-prof .av.off{background:var(--surface2);color:var(--muted)}
+.ios-prof .tx b{font-size:18px;font-weight:600}
+.ios-cell+.ios-prof::before,.ios-prof+.ios-cell::before{left:16px}
+@keyframes iosIn{from{transform:translateX(28%);opacity:0}}
+@keyframes iosBack{from{transform:translateX(-18%);opacity:0}}
+.ios-in{animation:iosIn .38s cubic-bezier(.25,.46,.45,.94)}
+.ios-back{animation:iosBack .32s cubic-bezier(.25,.46,.45,.94)}
+#v-set>.card[data-sub]{border:0;border-radius:26px}
+#v-set>.card[data-sub] > .card-h h2{display:none}
+#v-set>.card[data-sub] > .card-h{margin-bottom:6px}
+#v-set>.card[data-sub] > .card-h:not(:has(span)){display:none}
+@media (prefers-reduced-motion:reduce){.ios-in,.ios-back{animation:none}}
+/* ===== iOS 27 look (ios27-design-system tokens) — html[data-ios] ===== */
+html:root[data-ios]:not(.x0){
+  --bg:light-dark(#f2f2f7,#000);--surface:light-dark(#fff,#1c1c1e);--surface2:light-dark(#e9e9ee,#2c2c2e);
+  --ink:light-dark(#000,#fff);--muted:light-dark(#86868b,#98989f);--line:light-dark(rgba(60,60,67,.18),rgba(84,84,88,.55));
+  --fill3:light-dark(rgba(118,118,128,.12),rgba(118,118,128,.24));
+  --danger:light-dark(#ff383c,#ff4245);
+  --f:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang TC","Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;
+  --r:26px;--shadow:0 8px 48px light-dark(rgba(0,0,0,.18),rgba(0,0,0,.45));
+  --glass-bg:light-dark(rgba(255,255,255,.7),rgba(26,26,26,.7));--glass-line:transparent;--glass-hi:transparent;--glass-edge:transparent;--glass-sheen:transparent;--glass-glow:transparent;
+  --glass-rim:light-dark(#dbdbdb,#a6a6a6);--glass-pill:var(--fill3)}
+html:root[data-ios]:not([data-accent]):not(.x0){--a-l:#0088ff;--a-d:#0091ff;--h-l:#0088ff;--h-d:#0091ff}
+html[data-ios] body{background:var(--bg);letter-spacing:-.2px;-webkit-font-smoothing:antialiased}
+/* large title */
+html[data-ios] .appbar .wrap{padding-block:10px 6px;align-items:flex-end}
+html[data-ios] .appbar h1{font-size:34px;line-height:41px;font-weight:700;letter-spacing:.4px}
+html[data-ios] #ymLabel{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:-.2px}
+html[data-ios] #gear{width:44px;height:44px;margin-bottom:-2px;background:var(--glass-bg);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);border:0;box-shadow:0 0 0 .5px var(--glass-rim),0 4px 16px rgba(0,0,0,.08)}
+/* hero: colored content card, no glass (glass belongs to navigation) */
+html[data-ios] .hero{border-radius:26px;padding:20px 20px 18px;gap:4px;box-shadow:none;
+  background:linear-gradient(155deg,color-mix(in srgb,var(--hero) 78%,#fff) 0%,var(--hero) 62%,color-mix(in srgb,var(--hero) 85%,#000) 100%)}
+html[data-ios] .hero .lbl{font-size:15px;font-weight:600;color:rgba(255,255,255,.88)}
+html[data-ios] .hero .big{font-size:44px;font-weight:700;letter-spacing:-.5px;text-shadow:0 1px 3px rgba(0,0,0,.15)}
+html[data-ios] .hero .sub{font-size:15px;color:rgba(255,255,255,.9);margin-top:4px}
+html[data-ios] .hero .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.3);margin-top:12px}
+html[data-ios] .hero .bar div{border-radius:2px}
+/* section headers = Title 3 */
+html[data-ios] .sec-h{margin-bottom:-4px;padding-inline:4px}
+html[data-ios] .sec-h h2,html[data-ios] .card-h h2{font-size:20px;line-height:25px;font-weight:600;letter-spacing:-.45px}
+html[data-ios] .sec-h span,html[data-ios] .card-h span{font-size:15px;color:var(--muted)}
+/* cards = inset grouped surfaces */
+html[data-ios] .card{border:0;border-radius:26px;padding:18px 16px}
+html[data-ios] .rem,html[data-ios] .balert{border:0;border-radius:20px;background:var(--surface);font-weight:500;font-size:15px;padding:12px 10px 12px 16px}
+/* quick categories: app-icon style squares */
+html[data-ios] .qgrid{gap:10px}
+html[data-ios] .qbtn{border:0;border-radius:22px;min-height:88px;font-size:15px;font-weight:500;gap:8px;transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+html[data-ios] .qbtn:active{transform:scale(.95)}
+html[data-ios] .qdot{width:38px;height:38px;border-radius:11px;font-size:16px;font-weight:600;box-shadow:inset 0 0 0 .5px rgba(255,255,255,.25)}
+html[data-ios] .qbtn .dots{color:var(--muted)}
+/* favourites: capsules */
+html[data-ios] .fav{border:0;background:var(--surface);font-weight:500;font-size:15px;min-height:44px;padding:10px 16px}
+html[data-ios] .fav b{font-weight:500}
+html[data-ios] .addfav{border:0;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-weight:600}
+/* list rows: 52pt, 30pt rounded-square icons, inset separators */
+html[data-ios] .rows .row{background:var(--surface);min-height:56px;padding:9px 16px;gap:12px;grid-template-columns:36px minmax(0,1fr) auto}
+html[data-ios] .tile{width:36px;height:36px;border-radius:10px;font-size:15px;font-weight:600}
+html[data-ios] .row .main b{font-weight:500;font-size:16.5px}
+html[data-ios] .row .main span{font-size:13.5px}
+html[data-ios] .row .amt{font-weight:600;font-size:16.5px}
+html[data-ios] .rows .sw-wrap{border-top:0;position:relative}
+html[data-ios] .rows .sw-wrap+.sw-wrap::before{content:"";position:absolute;z-index:2;top:0;left:64px;right:0;height:.5px;background:var(--line)}
+html[data-ios] .incbig{font-weight:700;letter-spacing:-.5px}
+html[data-ios] .today{font-weight:600}
+html[data-ios] .emptyline{font-size:15px}
+/* tab bar: 62pt Liquid Glass platter */
+html[data-ios] .bottom .wrap{border:0;background:var(--glass-bg);-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
+  box-shadow:0 0 0 .5px var(--glass-rim),0 8px 48px light-dark(rgba(0,0,0,.18),rgba(0,0,0,.45))}
+html[data-ios] .bottom .wrap::before{display:none}
+html[data-ios] .nav{font-size:13px;font-weight:600;color:var(--ink);border-radius:999px}
+html[data-ios] .nav[aria-current="page"]{color:var(--accent);background:var(--fill3);box-shadow:none}
+html[data-ios] .navpill{background:var(--fill3)!important;box-shadow:none!important;border:0!important}
+html[data-ios] .add{background:var(--accent);box-shadow:0 0 0 .5px rgba(255,255,255,.35) inset,0 6px 16px color-mix(in srgb,var(--accent) 40%,transparent)}
+@media (prefers-reduced-transparency:reduce){html[data-ios] .bottom .wrap,html[data-ios] #gear{background:var(--surface);-webkit-backdrop-filter:none;backdrop-filter:none}}
+
+.qscroll{display:flex;gap:10px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scroll-padding-inline:max(16px,env(safe-area-inset-left,0px));padding:2px max(16px,env(safe-area-inset-right,0px)) 4px max(16px,env(safe-area-inset-left,0px));margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px))) calc(-1 * max(16px,env(safe-area-inset-right,0px)));scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.qscroll::-webkit-scrollbar{display:none}
+@media (min-width:752px){.qscroll{margin-inline:0;padding-inline:2px;scroll-padding-inline:2px}}
+.qscroll .qbtn{flex:0 0 auto;width:84px;scroll-snap-align:start}
+.qscroll .qbtn span:last-child{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html[data-ios] .qscroll .qbtn{min-height:92px;border-radius:22px}
+/* ===== iOS 27 entry sheet ===== */
+html[data-ios] .scrim{background:light-dark(rgba(0,0,0,.2),rgba(0,0,0,.48))}
+html[data-ios] .sheet{background:light-dark(#f2f2f7,#1c1c1e);-webkit-backdrop-filter:none;backdrop-filter:none;border:0;border-radius:34px;padding:18px 16px 16px;gap:16px;
+  box-shadow:0 0 0 .5px var(--glass-rim),0 8px 48px light-dark(rgba(0,0,0,.25),rgba(0,0,0,.55));width:min(430px,calc(100% - 20px));animation:iosSheet .5s cubic-bezier(.25,.46,.45,.94)}
+@keyframes iosSheet{from{transform:translate(-50%,-46%);opacity:0}}
+html[data-ios] .mhead h2{font-size:22px;line-height:28px;font-weight:700;letter-spacing:-.26px;padding-left:4px}
+html[data-ios] .mhead .round{width:44px;height:44px;background:var(--fill3);border:0;box-shadow:none}
+html[data-ios] .sheet .seg{display:grid;grid-template-columns:1fr 1fr;height:36px;padding:2px;border-radius:999px;background:var(--fill3);border:0}
+html[data-ios] .sheet .seg button{border-radius:999px;padding:0;font-size:15px;font-weight:500;color:var(--ink)}
+html[data-ios] .sheet .seg button[aria-pressed="true"]{background:light-dark(#fff,#636366);box-shadow:0 3px 8px rgba(0,0,0,.12),0 3px 1px rgba(0,0,0,.04);font-weight:600}
+html[data-ios] .sheet .seg button[data-type="inc"][aria-pressed="true"],html[data-ios] .sheet .seg button[data-rt="inc"][aria-pressed="true"]{color:var(--accent)}
+html[data-ios] .fl{font-size:13px;font-weight:500;color:var(--muted);padding-left:16px;letter-spacing:-.08px}
+html[data-ios] .fld{gap:6px}
+html[data-ios] .fbox{background:light-dark(#fff,#2c2c2e);border:0;border-radius:16px;min-height:52px;padding:0 16px;box-shadow:none}
+html[data-ios] .fbox:focus-within{box-shadow:0 0 0 2px var(--accent)}
+html[data-ios] .fbox input,html[data-ios] .fbox select{font-weight:400;font-size:17px}
+html[data-ios] .ddbtn{font-weight:400;font-size:17px}
+html[data-ios] .fbox .chev{color:var(--muted);opacity:.7}
+html[data-ios] .fbox.amt{min-height:68px}
+html[data-ios] .fbox.amt .cur{font-size:24px;font-weight:600;color:var(--muted)}
+html[data-ios] .fbox.amt input{font-size:36px;font-weight:700;letter-spacing:-.5px;padding:10px 0}
+html[data-ios] .akeys{gap:8px}
+html[data-ios] .akeys button{height:34px;padding:0;border:0;border-radius:999px;background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent);font-size:15px;font-weight:600}
+html[data-ios] .akeys .clr{background:var(--fill3);color:var(--muted)}
+html[data-ios] .ddlist{border:0;border-radius:24px;background:light-dark(rgba(255,255,255,.92),rgba(44,44,46,.94));-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);box-shadow:0 0 0 .5px var(--glass-rim),0 8px 48px light-dark(rgba(0,0,0,.2),rgba(0,0,0,.5))}
+html[data-ios] .ddopt{font-weight:400;font-size:17px;border-radius:14px}
+html[data-ios] .wheel{background:light-dark(#fff,#2c2c2e);border:0;border-radius:16px}
+html[data-ios] .sug{border:0;background:light-dark(#fff,#2c2c2e);font-weight:500;font-size:15px;min-height:34px}
+html[data-ios] .favchk{font-weight:500;font-size:15px;padding-left:4px}
+html[data-ios] .favchk .box{border-radius:50%;border-width:1.5px}
+html[data-ios] .savebtn{height:50px;min-height:50px;border-radius:999px;background:var(--accent);box-shadow:none;font-size:17px;font-weight:600;letter-spacing:-.4px}
+html[data-ios] .savebtn:active{transform:scale(.97)}
+html[data-ios] .linkdel{color:var(--danger);font-weight:500}
+@media (prefers-reduced-motion:reduce){html[data-ios] .sheet{animation:none}}
+/* ===== iOS 27 list page ===== */
+html[data-ios] .searchbar{height:44px;border:0;border-radius:999px;background:var(--fill3);padding:0 6px 0 14px}
+html[data-ios] .searchbar:focus-within{box-shadow:0 0 0 2px var(--accent)}
+html[data-ios] .searchbar input{font-size:17px;font-weight:400}
+html[data-ios] .monthbar .round{width:36px;height:36px;background:var(--fill3);border:0;box-shadow:none;font-size:20px;color:var(--ink)}
+html[data-ios] .monthbar h2{font-size:22px;font-weight:700;letter-spacing:-.26px}
+html[data-ios] .monthbar h2 small{font-size:15px}
+html[data-ios] .sums{padding:14px 16px}
+html[data-ios] .sums span{font-size:13px}
+html[data-ios] .sums b{font-size:20px;font-weight:600;letter-spacing:-.4px}
+html[data-ios] .card.day{background:none;padding:0;border-radius:0;overflow:visible}
+html[data-ios] .day .card-h{padding:0 16px 7px;margin:0;align-items:baseline}
+html[data-ios] .day .card-h h2{font-size:15px;line-height:20px;font-weight:600;letter-spacing:-.23px}
+html[data-ios] .day .card-h h2 small{font-size:13px}
+html[data-ios] .day .card-h span{font-size:13px}
+html[data-ios] .day .rows{background:var(--surface);border-radius:26px;overflow:hidden}
+html[data-ios] .day .sw-wrap{margin-inline:0}
+html[data-ios] .empty{color:var(--muted);font-size:15px}
+/* ===== iOS 27 stats / budget / shared controls ===== */
+html[data-ios] .btn{border:0;background:var(--fill3);border-radius:999px;font-weight:600;font-size:15px;min-height:36px}
+html[data-ios] .btn.primary{background:var(--accent);color:#fff}
+html[data-ios] .btn.danger{color:var(--danger)}
+html[data-ios] .card .btn[style*="width:100%"],html[data-ios] .card>.btn{color:var(--accent)}
+html[data-ios] .sharebtn{border:0;background:var(--surface);border-radius:999px;min-height:50px;font-size:17px;font-weight:600}
+html[data-ios] .minis span{font-size:13px}
+html[data-ios] .minis b{font-weight:600}
+html[data-ios] .rbar,html[data-ios] .pbar.thin{height:4px;border-radius:2px}
+html[data-ios] .pbar{height:8px;border-radius:4px}
+html[data-ios] .rbar,html[data-ios] .pbar{background:var(--fill3)}
+html[data-ios] .pbar.warn>div{background:light-dark(#ff8d28,#ff9230)}
+html[data-ios] .binrow{font-weight:500;font-size:15px;border-top-color:var(--line)}
+html[data-ios] .bin{border:0;background:var(--fill3);border-radius:10px}
+html[data-ios] .bin:focus-within{box-shadow:0 0 0 2px var(--accent)}
+html[data-ios] .bin input,html[data-ios] .bin span{font-weight:500}
+html[data-ios] .brow{border-top-width:.5px}
+html[data-ios] .qdot.sm{width:32px;height:32px;border-radius:9px}
+html[data-ios] .note{font-size:15px;line-height:1.45;color:var(--muted)}
+html[data-ios] .cal i.ok{background:var(--accent)}
+html[data-ios] .top{border-top-width:.5px}
+html[data-ios] .inp{border:0;background:var(--fill3);border-radius:12px}
+html[data-ios] .tag{border:0;background:var(--fill3);font-weight:500}
+html[data-ios] .tgl input:not(:checked)+i{background:var(--fill3);border-color:transparent}
+html[data-ios] .tgl input:checked+i{background:var(--accent);border-color:var(--accent)}
+html[data-ios] .tgl b{font-weight:500;font-size:16px}
+html[data-ios] .tgl{border-top-width:.5px}
+
+/* ===== subscriptions page ===== */
+#recSheet [hidden]{display:none!important}
+.subbig{font-size:38px;font-weight:700;letter-spacing:-.5px;line-height:1.15;margin-top:2px}
+.subbig small{font-size:17px;font-weight:500;color:var(--muted);margin-left:4px;letter-spacing:0}
+.subsum .minis b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.subgrp{padding:0!important;overflow:hidden}
+.subgrp .rows{display:grid}
+.subrow{position:relative;display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:12px;align-items:center;width:100%;min-height:60px;padding:10px 16px;border:0;background:var(--surface);text-align:left;color:var(--ink);cursor:pointer}
+.subrow:active{background:color-mix(in srgb,var(--ink) 6%,var(--surface))}
+.subrow+.subrow::before{content:"";position:absolute;top:0;left:64px;right:0;height:.5px;background:var(--line)}
+.subrow .tile{width:36px;height:36px;border-radius:10px;font-size:16px;font-weight:700}
+.subrow .rmain{gap:2px}
+.subrow .rmain b{font-size:16.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.subrow .rmain span{font-size:13.5px;color:var(--muted)}
+.subrow.paused{opacity:.55}
+.subamt{display:grid;justify-items:end;gap:1px}
+.subamt b{font-size:16.5px;font-weight:600}
+.subamt em{font-style:normal;font-size:12.5px;color:var(--muted)}
+.subamt em.due{color:var(--accent);font-weight:600}
+.subamt em.hot{color:var(--danger);font-weight:600}
+.subempty{text-align:center;display:grid;gap:4px;padding:28px 20px!important}
+.subempty b{font-size:17px}
+.subpre{display:flex;flex-wrap:wrap;gap:8px}
+.subfoot{margin:-4px 4px 0;font-size:13px}
+#v-subs .sec-h{margin-top:4px}
+
+/* custom menu for native selects (desktop / mouse) */
+.nmenu{position:fixed;z-index:80;display:grid;gap:2px;padding:6px;max-height:300px;overflow:auto;border-radius:24px;
+  background:light-dark(rgba(255,255,255,.94),rgba(44,44,46,.96));-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
+  box-shadow:0 0 0 .5px var(--glass-rim,#dbdbdb),0 8px 48px light-dark(rgba(0,0,0,.2),rgba(0,0,0,.5));animation:nmIn .16s ease-out}
+@keyframes nmIn{from{opacity:0;transform:translateY(-4px) scale(.98)}}
+.nmenu .ddopt{font-weight:400;font-size:17px;border-radius:14px;min-height:44px}
+.nmenu .ddopt:hover,.nmenu .ddopt:focus-visible{background:var(--fill3,rgba(118,118,128,.12));outline:none}
+
+/* extra theme colors */
+:root[data-accent="indigo"]{--a-l:#4F5BD5; --a-d:#7B85F0; --h-l:#4F5BD5; --h-d:#4F5BD5}
+:root[data-accent="sky"]{--a-l:#0A84C2; --a-d:#4CB4E8; --h-l:#0A84C2; --h-d:#0A84C2}
+:root[data-accent="navy"]{--a-l:#1F4E8C; --a-d:#6B93D6; --h-l:#1F4E8C; --h-d:#1F4E8C}
+:root[data-accent="lime"]{--a-l:#4E7F2A; --a-d:#8CC152; --h-l:#4E7F2A; --h-d:#4E7F2A}
+:root[data-accent="grape"]{--a-l:#8E44AD; --a-d:#B97ED6; --h-l:#8E44AD; --h-d:#8E44AD}
+:root[data-accent="red"]{--a-l:#D23F4E; --a-d:#FF6B78; --h-l:#D23F4E; --h-d:#D23F4E}
+:root[data-accent="wine"]{--a-l:#8E2846; --a-d:#D06A8C; --h-l:#8E2846; --h-d:#8E2846}
+:root[data-accent="gold"]{--a-l:#A97A00; --a-d:#E5B83A; --h-l:#A97A00; --h-d:#A97A00}
+:root[data-accent="brown"]{--a-l:#8B5E3C; --a-d:#C08A62; --h-l:#8B5E3C; --h-d:#8B5E3C}
+:root[data-accent="graphite"]{--a-l:#4A5560; --a-d:#9AA5B1; --h-l:#4A5560; --h-d:#4A5560}
+.swatches{grid-template-columns:repeat(auto-fill,minmax(64px,1fr))!important}
+/* category colour picker */
+.cpick{position:fixed;z-index:85;width:min(320px,calc(100% - 24px));padding:14px;border-radius:26px;display:grid;gap:12px;
+  background:light-dark(rgba(255,255,255,.96),rgba(44,44,46,.97));-webkit-backdrop-filter:blur(18px) saturate(180%);backdrop-filter:blur(18px) saturate(180%);
+  box-shadow:0 0 0 .5px var(--glass-rim,#dbdbdb),0 8px 48px light-dark(rgba(0,0,0,.22),rgba(0,0,0,.55));animation:nmIn .16s ease-out}
+.cpick h3{margin:0 4px;font-size:15px;font-weight:600;display:flex;align-items:center;gap:8px}
+.cpick h3 i{width:14px;height:14px;border-radius:50%}
+.cpgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.cpgrid button{position:relative;aspect-ratio:1;border-radius:50%;border:0;padding:0;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.cpgrid button[aria-pressed="true"]{box-shadow:0 0 0 2.5px light-dark(#fff,#2c2c2e),0 0 0 4.5px var(--ink)}
+.cpgrid button.used::after{content:"";position:absolute;right:-1px;bottom:-1px;width:9px;height:9px;border-radius:50%;background:light-dark(#fff,#2c2c2e);box-shadow:inset 0 0 0 2.5px var(--muted)}
+.cpcustom{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:500;padding:4px}
+.cpcustom input{width:44px;height:32px;border:0;padding:0;background:none;cursor:pointer}
+.cpnote{font-size:12.5px;color:var(--muted);margin:-4px 4px 0}
+
+/* tab bar with icons + floating add button (bottom-right) */
+.bottom{left:0!important;right:0!important;margin-inline:auto;width:min(560px,calc(100% - 2 * max(16px,env(safe-area-inset-left,0px))))}
+.bottom .wrap{grid-template-columns:repeat(4,minmax(0,1fr))!important;max-width:none!important;height:70px!important;padding:6px!important;border-radius:35px!important;gap:2px!important}
+.nav{display:grid;place-items:center;align-content:center;gap:3px;font-size:12px!important;font-weight:600!important;line-height:1;border-radius:999px!important;padding:0}
+.nav svg{width:25px;height:25px;display:block}
+.navpill{top:6px!important;bottom:6px!important;border-radius:999px!important}
+.bottom .add{position:absolute;right:0;bottom:calc(100% + 16px);width:62px;height:62px;pointer-events:auto;z-index:2}
+.bottom .add svg{width:28px;height:28px}
+html[data-ios] .nav{color:var(--ink)}
+main{padding-bottom:calc(178px + env(safe-area-inset-bottom,0px))!important}
+.toast{bottom:calc(100px + env(safe-area-inset-bottom,0px))!important}
+/* ===== entry sheet: iOS large sheet + own keypad ===== */
+#sheet.esheet{left:0;right:0;top:calc(env(safe-area-inset-top,0px) + 10px);bottom:0;margin-inline:auto;width:min(600px,100%);max-height:none;transform:none;
+  border-radius:38px 38px 0 0;padding:14px 16px 0;gap:0;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;
+  background:light-dark(#f2f2f7,#1c1c1e);border:0;box-shadow:0 -10px 40px rgba(0,0,0,.18);animation:none}
+#sheet.esheet.show{animation:esUp .45s cubic-bezier(.25,.46,.45,.94) both}
+#sheet.esheet.hide{animation:esDown .28s ease-in both}
+@keyframes esUp{from{transform:translateY(100%)}}
+@keyframes esDown{to{transform:translateY(100%)}}
+#sheet.esheet.show>*{animation:none}
+.etop{display:flex;align-items:center;gap:10px;position:sticky;top:-14px;z-index:4;margin:-14px -16px 0;padding:14px 16px 6px;background:light-dark(#f2f2f7,#1c1c1e)}
+.etop .sp{flex:1}
+.etop .round{width:48px;height:48px;background:light-dark(#fff,#2c2c2e);border:0;box-shadow:0 0 0 .5px var(--glass-rim,#dbdbdb)}
+.etop .round svg{width:20px;height:20px}
+.esave{height:48px;min-width:96px;padding:0 22px;border:0;border-radius:999px;background:var(--accent);color:#fff;font-size:18px;font-weight:600;cursor:pointer;box-shadow:0 0 0 .5px rgba(255,255,255,.35) inset;transition:transform .2s cubic-bezier(.34,1.56,.64,1)}
+.esave:active{transform:scale(.95)}
+.etitle{margin:14px 4px 14px;font-size:34px;line-height:41px;font-weight:700;letter-spacing:.4px}
+.ecard{background:light-dark(#fff,#2c2c2e);border-radius:26px;padding:8px 16px 16px}
+.amtline{display:flex;align-items:center;gap:2px;min-height:64px;border-bottom:.5px solid var(--line);cursor:pointer;outline:none}
+.amtline .sign,.amtline .cur{font-size:34px;font-weight:700;color:var(--ink)}
+.amtline.inc .sign,.amtline.inc .cur,.amtline.inc input{color:var(--accent)}
+.amtline input{flex:1;min-width:0;border:0;background:none;outline:none;font-size:34px;font-weight:700;letter-spacing:-.5px;color:var(--ink);padding:0;font-variant-numeric:tabular-nums;cursor:pointer;caret-color:transparent}
+.amtline input::placeholder{color:var(--ink)}
+.amtline .ccy{flex:none;font-size:15px;font-weight:600;color:var(--accent);background:var(--fill3);border-radius:999px;padding:6px 12px}
+.esheet.padopen .amtline{box-shadow:inset 0 -2px 0 var(--accent)}
+.esheet .amounthint{margin:6px 0 0;text-align:right;font-size:13px;color:var(--muted)}
+.esheet .ecard .seg{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;height:40px;padding:3px;border-radius:999px;background:none!important}
+html[data-ios] .esheet .ecard .seg button,.esheet .ecard .seg button{border-radius:999px;font-size:16px;font-weight:500;color:var(--muted);background:none;box-shadow:none}
+html[data-ios] .esheet .ecard .seg button[aria-pressed="true"],.esheet .ecard .seg button[aria-pressed="true"]{background:var(--fill3);color:var(--accent);font-weight:600;box-shadow:none}
+.esheet .akeys{margin-top:12px}
+.egh{margin:22px 4px 8px;font-size:20px;line-height:25px;font-weight:600;letter-spacing:-.45px}
+.egrp{background:light-dark(#fff,#2c2c2e);border-radius:26px;overflow:visible}
+.erow{position:relative;display:flex;align-items:center;gap:14px;min-height:62px;padding:8px 16px}
+.erow+.erow::before,.wheelwrap+.erow::before{content:"";position:absolute;top:0;left:62px;right:0;height:.5px;background:var(--line)}
+.eic{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;flex:none}
+.eic svg{width:21px;height:21px}
+.el{flex:none;font-size:17px;font-weight:400;color:var(--ink)}
+.erow .fbox{flex:1;min-width:0;background:none!important;box-shadow:none!important;border:0!important;padding:0;min-height:44px;justify-content:flex-end}
+.erow .ddbtn{justify-content:flex-end;text-align:right;padding:10px 4px 10px 0;color:var(--muted);font-size:17px;font-weight:400}
+.erow .ddbtn .ddlabel{color:var(--muted)}
+.erow .fbox .chev{position:static;transform:none;width:16px;height:16px;color:var(--muted);opacity:.6;flex:none}
+.erow .fbox.note input{text-align:right;color:var(--ink);font-size:17px;font-weight:400}
+.erow .ddlist{left:auto;right:0;min-width:200px}
+.esheet .wheelwrap{margin:0 12px}
+.esheet .wheelwrap.open{margin:0 12px 12px}
+.esheet .wheel{background:var(--fill3)}
+.favrow{cursor:pointer}
+.favrow .el{flex:1}
+.favrow input{position:absolute;opacity:0;width:1px;height:1px}
+.favrow .box{position:relative;width:51px;height:31px;border-radius:16px;background:var(--fill3);border:0;flex:none;transition:background .25s}
+.favrow .box::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 3px 8px rgba(0,0,0,.15),0 3px 1px rgba(0,0,0,.06);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+.favrow input:checked+.box{background:var(--accent)}
+.favrow input:checked+.box::after{transform:translateX(20px);border:0;width:27px;height:27px}
+.favrow input:focus-visible+.box{outline:2px solid var(--accent);outline-offset:2px}
+.esheet .sugs{margin:10px 4px 0}
+.esheet .nhint{margin:8px 8px 0}
+.esheet .delslot{margin:20px 0 0}
+.esheet::after{content:"";flex:none;height:calc(28px + env(safe-area-inset-bottom,0px))}
+.esheet.padopen::after{height:0}
+/* keypad */
+.kpad{position:sticky;bottom:0;z-index:5;margin:18px -16px 0;padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px));
+  background:light-dark(rgba(220,222,228,.82),rgba(40,40,44,.86));-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+  border-radius:30px 30px 0 0;box-shadow:0 0 0 .5px var(--glass-rim,#dbdbdb);animation:kpIn .32s cubic-bezier(.25,.46,.45,.94)}
+@keyframes kpIn{from{transform:translateY(40%);opacity:0}}
+.kdone{position:absolute;right:16px;top:-74px;width:62px;height:62px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;cursor:pointer;
+  box-shadow:0 0 0 .5px rgba(255,255,255,.35) inset,0 6px 18px color-mix(in srgb,var(--accent) 40%,transparent)}
+.kdone svg{width:28px;height:28px}
+.kgrid{display:grid;grid-template-columns:3fr 1fr;gap:8px}
+.knum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kops{display:grid;grid-template-rows:repeat(5,1fr);gap:8px}
+.kgrid button{border:0;border-radius:18px;background:light-dark(#fff,#4a4a4f);color:var(--ink);font-size:28px;font-weight:400;min-height:56px;cursor:pointer;font-variant-numeric:tabular-nums;
+  -webkit-user-select:none;user-select:none;touch-action:manipulation;transition:transform .12s,filter .12s}
+.kgrid button:active{transform:scale(.94);filter:brightness(.92)}
+.kgrid .alt{background:transparent;color:var(--accent);font-weight:600}
+.kops button{min-height:0;font-size:26px;color:#e8792b;background:light-dark(rgba(232,121,43,.16),rgba(232,121,43,.24))}
+.kops .del{color:#e5484d;background:light-dark(rgba(229,72,77,.16),rgba(229,72,77,.26))}
+.kops .del svg{width:26px;height:26px}
+@media (prefers-reduced-motion:reduce){#sheet.esheet.show,#sheet.esheet.hide,.kpad{animation:none}}
 </style>
 
 </head>
@@ -630,31 +960,54 @@ select option{background:var(--surface);color:var(--ink)}
   <section id="v-list" style="display:contents" hidden></section>
   <section id="v-stats" style="display:contents" hidden></section>
   <section id="v-budget" style="display:contents" hidden></section>
+  <section id="v-subs" style="display:contents" hidden></section>
   <section id="v-set" style="display:contents" hidden></section>
 </div></main>
 
 <nav class="bottom" aria-label="主選單"><div class="wrap">
   <span class="navpill" aria-hidden="true"></span>
-  <button class="nav" data-go="home" aria-current="page">首頁</button>
-  <button class="nav" data-go="list">明細</button>
-  <button class="add" id="addBtn" aria-label="記一筆"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button>
-  <button class="nav" data-go="stats">統計</button>
-  <button class="nav" data-go="budget">預算</button>
-</div></nav>
+  <button class="nav" data-go="home" aria-current="page"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3" y="3" width="8" height="8" rx="2.2"/><rect x="13" y="3" width="8" height="8" rx="2.2"/><rect x="3" y="13" width="8" height="8" rx="2.2"/><rect x="13" y="13" width="8" height="8" rx="2.2"/></svg><span>首頁</span></button>
+  <button class="nav" data-go="list"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="4.5" cy="6" r="1.6"/><circle cx="4.5" cy="12" r="1.6"/><circle cx="4.5" cy="18" r="1.6"/><rect x="8.5" y="5" width="13" height="2.1" rx="1.05"/><rect x="8.5" y="10.95" width="13" height="2.1" rx="1.05"/><rect x="8.5" y="16.9" width="13" height="2.1" rx="1.05"/></svg><span>明細</span></button>
+  <button class="nav" data-go="stats"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="3.5" y="12" width="4.2" height="8.5" rx="1.4"/><rect x="9.9" y="4" width="4.2" height="16.5" rx="1.4"/><rect x="16.3" y="8.5" width="4.2" height="12" rx="1.4"/></svg><span>統計</span></button>
+  <button class="nav" data-go="subs"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9"/><path d="M5.2 2.8v3.6h3.6"/><path d="M4 13a8 8 0 0 0 14.3 4.9"/><path d="M18.8 21.2v-3.6h-3.6"/></svg><span>訂閱</span></button>
+</div><button class="add" id="addBtn" aria-label="記一筆"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></button></nav>
 
 <div class="scrim" id="scrim" hidden></div>
-<form class="sheet" id="sheet" hidden autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
-  <div class="mhead"><h2 id="sheetTitle">記一筆</h2><button type="button" class="round" id="closeSheet" aria-label="關閉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-  <div class="seg" role="group" aria-label="類型"><button type="button" data-type="exp" aria-pressed="true">支出</button><button type="button" data-type="inc" aria-pressed="false">收入</button></div>
-  <div class="fld"><label class="fl" for="fAmount">金額</label><div class="fbox amt" id="amountBox"><span class="cur">$</span><input id="fAmount" inputmode="decimal" placeholder="0"></div><div class="amounthint" id="amountHint"></div><div class="akeys" id="akeys"><button type="button" data-add="10">+10</button><button type="button" data-add="50">+50</button><button type="button" data-add="100">+100</button><button type="button" data-add="500">+500</button><button type="button" data-add="1000">+1000</button><button type="button" data-clr class="clr" aria-label="清除金額">清除</button></div></div>
-  <div class="fld"><label class="fl" id="lCat">分類</label><div class="fbox sel"><button type="button" class="ddbtn" id="fCat" aria-haspopup="listbox" aria-expanded="false"><i class="seldot" id="fCatDot"></i><span class="ddlabel"></span></button><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><div class="ddlist" role="listbox" hidden></div></div></div>
-  <div class="fld"><label class="fl" id="lAcct">帳戶</label><div class="fbox sel"><button type="button" class="ddbtn" id="fAcct" aria-haspopup="listbox" aria-expanded="false"><span class="ddlabel"></span></button><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg><div class="ddlist" role="listbox" hidden></div></div></div>
-  <div class="fld"><label class="fl" for="fNote">商店／說明</label><div class="fbox"><input id="fNote" placeholder="例如：全家、午餐" maxlength="40" autocomplete="off"></div><div class="sugs" id="noteSugs" hidden></div><div class="nhint" id="noteHint" hidden></div></div>
-  <div class="fld"><label class="fl" id="lWhen">日期與時間</label><div class="fbox sel"><button type="button" class="ddbtn" id="fWhenBtn" aria-expanded="false" aria-labelledby="lWhen fWhenLabel"><span class="ddlabel" id="fWhenLabel"></span></button><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div>
-    <div class="wheelwrap" id="wheelWrap"><div><div class="wheel" id="wheel" aria-label="選擇日期與時間"><div class="wcol date" id="wD"></div><div class="wcol ap" id="wAP"></div><div class="wcol hr" id="wH"></div><div class="wcol mi" id="wM"></div></div></div></div></div>
-  <label class="favchk" id="favRow"><input type="checkbox" id="fFav"><span class="box"></span><span>同時存成常用項目，下次一鍵記帳</span></label>
-  <button class="savebtn" type="submit" id="saveBtn">儲存記錄</button>
+<form class="sheet esheet" id="sheet" hidden autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="etop"><button type="button" class="round" id="closeSheet" aria-label="關閉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><span class="sp"></span><button class="esave" type="submit" id="saveBtn">儲存</button></div>
+  <h2 class="etitle" id="sheetTitle">新支出</h2>
+  <div class="ecard eamt">
+    <div class="amtline" id="amountBox" role="button" tabindex="0" aria-label="輸入金額"><span class="sign" id="amtSign">-</span><span class="cur">$</span><input id="fAmount" inputmode="none" readonly placeholder="0" aria-label="金額" tabindex="-1"><span class="ccy">TWD</span></div>
+    <div class="amounthint" id="amountHint"></div>
+    <div class="seg" role="group" aria-label="類型"><button type="button" data-type="exp" aria-pressed="true">支出</button><button type="button" data-type="inc" aria-pressed="false">收入</button></div>
+  </div>
+  <div class="akeys" id="akeys"><button type="button" data-add="10">+10</button><button type="button" data-add="50">+50</button><button type="button" data-add="100">+100</button><button type="button" data-add="500">+500</button><button type="button" data-add="1000">+1000</button><button type="button" data-clr class="clr" aria-label="清除金額">清除</button></div>
+  <div class="egh">分配</div>
+  <div class="egrp">
+    <div class="erow"><span class="eic" style="background:#30b07f"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3 10h18M7 15h3"/></svg></span><span class="el" id="lAcct">帳戶</span><div class="fbox sel"><button type="button" class="ddbtn" id="fAcct" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="lAcct"><span class="ddlabel"></span></button><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><div class="ddlist" role="listbox" hidden></div></div></div>
+    <div class="erow"><span class="eic" style="background:#2f7cf6"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12.6V4.5a1 1 0 0 1 1-1h8.1l8 8a1.4 1.4 0 0 1 0 2l-7.1 7.1a1.4 1.4 0 0 1-2 0Z"/><circle cx="8.3" cy="8.3" r="1.4"/></svg></span><span class="el" id="lCat">分類</span><div class="fbox sel"><button type="button" class="ddbtn" id="fCat" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="lCat"><i class="seldot" id="fCatDot"></i><span class="ddlabel"></span></button><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg><div class="ddlist" role="listbox" hidden></div></div></div>
+    <div class="erow"><span class="eic" style="background:#ff8d28"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16Z"/><path d="M13.5 6.5l4 4"/></svg></span><label class="el" for="fNote">說明</label><div class="fbox note"><input id="fNote" placeholder="例如：全家、午餐" maxlength="40" autocomplete="off"></div></div>
+  </div>
+  <div class="sugs" id="noteSugs" hidden></div><div class="nhint" id="noteHint" hidden></div>
+  <div class="egh">日期</div>
+  <div class="egrp">
+    <div class="erow"><span class="eic" style="background:#ff453a"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></span><span class="el" id="lWhen">日期</span><div class="fbox sel"><button type="button" class="ddbtn" id="fWhenBtn" aria-expanded="false" aria-labelledby="lWhen fWhenLabel"><span class="ddlabel" id="fWhenLabel"></span></button></div></div>
+    <div class="wheelwrap" id="wheelWrap"><div><div class="wheel" id="wheel" aria-label="選擇日期與時間"><div class="wcol date" id="wD"></div><div class="wcol ap" id="wAP"></div><div class="wcol hr" id="wH"></div><div class="wcol mi" id="wM"></div></div></div></div>
+    <label class="erow favrow" id="favRow"><span class="eic" style="background:#ffcc00"><svg viewBox="0 0 24 24" fill="#fff"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8Z"/></svg></span><span class="el">存成常用項目</span><input type="checkbox" id="fFav"><span class="box" aria-hidden="true"></span></label>
+  </div>
   <div class="delslot" id="delSlot"></div>
+  <div class="kpad" id="kpad" hidden>
+    <button type="button" class="kdone" id="kDone" aria-label="完成輸入金額"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg></button>
+    <div class="kgrid"><div class="knum">
+      <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+      <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+      <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+      <button type="button" class="alt" data-k=".">.</button><button type="button" data-k="0">0</button><button type="button" class="alt" data-k="=" aria-label="計算">=</button>
+    </div><div class="kops">
+      <button type="button" class="op" data-k="/" aria-label="除">÷</button><button type="button" class="op" data-k="*" aria-label="乘">×</button><button type="button" class="op" data-k="-" aria-label="減">−</button><button type="button" class="op" data-k="+" aria-label="加">+</button>
+      <button type="button" class="del" data-k="del" aria-label="刪除一位"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 5H9l-6 7 6 7h12Z"/><path d="m11 9 6 6m0-6-6 6"/></svg></button>
+    </div></div>
+  </div>
 </form>
 <div class="scrim" id="recScrim" hidden></div>
 <form class="sheet" id="recSheet" hidden autocomplete="off" role="dialog" aria-modal="true" aria-labelledby="recTitle">
@@ -664,7 +1017,10 @@ select option{background:var(--surface);color:var(--ink)}
   <div class="fld"><label class="fl" for="rAmt">每月金額</label><div class="fbox amt" id="rAmtBox"><span class="cur">$</span><input id="rAmt" inputmode="decimal" placeholder="0"></div></div>
   <div class="two2"><div class="fld"><label class="fl" for="rCat">分類</label><div class="fbox sel"><i class="seldot" id="rCatDot"></i><select id="rCat" class="nsel"></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
     <div class="fld"><label class="fl" for="rAcct">帳戶</label><div class="fbox sel"><select id="rAcct" class="nsel"></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div></div>
-  <div class="fld"><label class="fl" for="rDay">每月幾號記帳</label><div class="fbox sel"><select id="rDay" class="nsel"><option value="1">1 號</option><option value="2">2 號</option><option value="3">3 號</option><option value="4">4 號</option><option value="5">5 號</option><option value="6">6 號</option><option value="7">7 號</option><option value="8">8 號</option><option value="9">9 號</option><option value="10">10 號</option><option value="11">11 號</option><option value="12">12 號</option><option value="13">13 號</option><option value="14">14 號</option><option value="15">15 號</option><option value="16">16 號</option><option value="17">17 號</option><option value="18">18 號</option><option value="19">19 號</option><option value="20">20 號</option><option value="21">21 號</option><option value="22">22 號</option><option value="23">23 號</option><option value="24">24 號</option><option value="25">25 號</option><option value="26">26 號</option><option value="27">27 號</option><option value="28">28 號</option><option value="29">29 號（小月為月底）</option><option value="30">30 號（小月為月底）</option><option value="31">31 號（小月為月底）</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+  <div class="fld" id="rCycF" hidden><span class="fl">扣款週期</span><div class="seg" role="group" aria-label="扣款週期"><button type="button" data-cy="m" aria-pressed="true">每月</button><button type="button" data-cy="y" aria-pressed="false">每年</button></div></div>
+  <div class="fld" id="rMonF" hidden><label class="fl" for="rMon">每年幾月扣款</label><div class="fbox sel"><select id="rMon" class="nsel"><option value="1">1 月</option><option value="2">2 月</option><option value="3">3 月</option><option value="4">4 月</option><option value="5">5 月</option><option value="6">6 月</option><option value="7">7 月</option><option value="8">8 月</option><option value="9">9 月</option><option value="10">10 月</option><option value="11">11 月</option><option value="12">12 月</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
+  <label class="favchk" id="rPauseF" hidden><input type="checkbox" id="rPause"><span class="box"></span><span>暫停這個訂閱（不會自動記帳）</span></label>
+  <div class="fld"><label class="fl" for="rDay" id="rDayL">每月幾號記帳</label><div class="fbox sel"><select id="rDay" class="nsel"><option value="1">1 號</option><option value="2">2 號</option><option value="3">3 號</option><option value="4">4 號</option><option value="5">5 號</option><option value="6">6 號</option><option value="7">7 號</option><option value="8">8 號</option><option value="9">9 號</option><option value="10">10 號</option><option value="11">11 號</option><option value="12">12 號</option><option value="13">13 號</option><option value="14">14 號</option><option value="15">15 號</option><option value="16">16 號</option><option value="17">17 號</option><option value="18">18 號</option><option value="19">19 號</option><option value="20">20 號</option><option value="21">21 號</option><option value="22">22 號</option><option value="23">23 號</option><option value="24">24 號</option><option value="25">25 號</option><option value="26">26 號</option><option value="27">27 號</option><option value="28">28 號</option><option value="29">29 號（小月為月底）</option><option value="30">30 號（小月為月底）</option><option value="31">31 號（小月為月底）</option></select><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></div></div>
   <div class="fld" id="rStartF"><span class="fl">從哪個月開始</span><div class="seg rstart" role="group" aria-label="開始月份"><button type="button" data-s="0" aria-pressed="true">這個月</button><button type="button" data-s="1" aria-pressed="false">下個月</button></div><p class="rhint" id="rHint"></p></div>
   <button class="savebtn" type="submit" id="recSave">儲存</button>
   <div class="delslot" id="recDel"></div>
@@ -700,7 +1056,7 @@ const NCOL=12;
 function ckey(type,cat){return(type==="inc"?"inc:":"exp:")+cat}
 function ensureColors(){const c=S.settings.colors=S.settings.colors||{};
   for(const type of["exp","inc"]){S.settings[type].forEach((cat,i)=>{const k=ckey(type,cat);if(c[k]==null){const used=S.settings[type].map(x=>c[ckey(type,x)]).filter(x=>x!=null);let pick=(i+(type==="inc"?4:0))%NCOL;for(let j=0;j<NCOL;j++){const cand=(pick+j)%NCOL;if(!used.includes(cand)){pick=cand;break}}c[k]=pick}})}}
-function catColor(type,cat){const c=S.settings.colors||{};const v=c[ckey(type,cat)];return v==null?"var(--muted)":`var(--c${v+1})`}
+function catColor(type,cat){const c=S.settings.colors||{};const v=c[ckey(type,cat)];return v==null?"var(--muted)":typeof v==="string"&&/^#[0-9a-f]{6}$/i.test(v)?v:`var(--c${(+v||0)%NCOL+1})`}
 function badge(type,cat,cls){return`<span class="${cls||"tile"}" style="background:${catColor(type,cat)}">${esc((cat||"?").slice(0,1))}</span>`}
 function timeOf(t){if(!t.ts||t.ts<1e12)return"";const d=new Date(t.ts);const h=d.getHours();return(h<12?"上午":"下午")+pad(h%12||12)+":"+pad(d.getMinutes())}
 function toast(msg,action){const t=$("#toast");t.textContent=msg;if(action){const b=document.createElement("button");b.type="button";b.textContent=action.label;b.onclick=()=>{t.hidden=true;action.fn()};t.appendChild(b)}t.hidden=false;clearTimeout(toast._t);toast._t=setTimeout(()=>t.hidden=true,action?4500:2400)}
@@ -746,14 +1102,14 @@ function render(){
   const now=new Date();$("#ymLabel").textContent=`${now.getFullYear()}年${now.getMonth()+1}月`;
   $("#bannerSlot").innerHTML=S.sample&&S.view!=="set"?`<div class="banner"><span>目前顯示的是<b>範例資料</b>。</span><button id="clr">清除範例，開始記帳</button></div>`:"";
   if(S.sample&&S.view!=="set")$("#clr").onclick=clearSample;
-  ["home","list","stats","budget","set"].forEach(v=>$("#v-"+v).hidden=S.view!==v);
+  ["home","list","stats","budget","subs","set"].forEach(v=>$("#v-"+v).hidden=S.view!==v);
   if(!GEAR)GEAR=$("#gearIc").innerHTML;
-  const wantIc=S.view==="set"?"back":"gear";const gi=$("#gearIc");
+  const wantIc=S.view==="set"||S.view==="budget"?"back":"gear";const gi=$("#gearIc");
   if(gi.dataset.ic!==wantIc){const first=!gi.dataset.ic;gi.dataset.ic=wantIc;gi.innerHTML=wantIc==="back"?BACK:GEAR;if(!first){gi.classList.remove("morph");void gi.offsetWidth;gi.classList.add("morph")}}
-  requestAnimationFrame(movePill);$("#gear").setAttribute("aria-label",S.view==="set"?"返回":"設定");
-  document.querySelector(".appbar h1").textContent=S.view==="set"?"設定":"日常帳本";
+  requestAnimationFrame(movePill);$("#gear").setAttribute("aria-label",S.view==="set"||S.view==="budget"?"返回":"設定");
+  document.querySelector(".appbar h1").textContent=S.view==="set"?(S.setSub&&IOS_SUBS[S.setSub]?IOS_SUBS[S.setSub].t:"設定"):S.view==="budget"?"預算":S.view==="subs"?"訂閱":"日常帳本";
   document.querySelectorAll(".nav").forEach(b=>b.setAttribute("aria-current",b.dataset.go===S.view?"page":"false"));
-  if(S.view==="home")renderHome();else if(S.view==="list")renderList();else if(S.view==="stats")renderStats();else if(S.view==="budget")renderBudget();else renderSettings();
+  if(S.view==="home")renderHome();else if(S.view==="list")renderList();else if(S.view==="stats")renderStats();else if(S.view==="budget")renderBudget();else if(S.view==="subs")renderSubs();else renderSettings();
 }
 const SRC_NAME={shortcut:"捷徑記帳",applepay:"Apple Pay"};
 function rowHTML(t,withDate){
@@ -813,9 +1169,10 @@ function renderHome(){
   const alerts=budgetRows(m).filter(r=>r.limit&&r.spent/r.limit>=.9).sort((a,b)=>b.spent/b.limit-a.spent/a.limit);
   h+=remindersHTML();
   if(alerts.length)h+=`<button type="button" class="balert" id="bAlert">${alerts.slice(0,3).map(r=>`<span class="${r.spent>r.limit?"over":"warn"}"><i style="background:${catColor("exp",r.cat)}"></i>${esc(r.cat)} ${r.spent>r.limit?"超支 $"+fmt(r.spent-r.limit):"已用 "+Math.floor(r.spent/r.limit*100)+"%"}</span>`).join("")}<em>查看預算 ›</em></button>`;
-  h+=`<div class="sec-h"><h2>快速記一筆</h2><span>最近使用的分類</span></div><div class="qgrid">`;
-  for(const c of recentCats())h+=`<button class="qbtn" type="button" data-q="${esc(c)}">${badge("exp",c,"qdot")}<span>${esc(c)}</span></button>`;
-  h+=`<button class="qbtn" type="button" data-q=""><span class="dots">•••</span><span>更多</span></button></div>`;
+  h+=`<div class="sec-h"><h2>快速記一筆</h2><span>左右滑動看全部分類</span></div><div class="qscroll" role="list">`;
+  {const rc=recentCats(),all=[...rc,...S.settings.exp.filter(c=>!rc.includes(c))];
+   for(const c of all)h+=`<button class="qbtn" type="button" role="listitem" data-q="${esc(c)}">${badge("exp",c,"qdot")}<span>${esc(c)}</span></button>`;}
+  h+=`</div>`;
   const favs=S.settings.favs||[];
   h+=`<div class="favsec"><div class="sec-h"><h2>常用項目</h2><span>點一下直接記帳</span></div><div class="favs">${favs.map(f=>`<button type="button" class="fav" data-fav="${esc(f.id)}"><i style="background:${catColor(f.type,f.cat)}"></i><span>${esc(f.name)}</span><b class="tn">${f.type==="inc"?"+":""}$${fmt(f.amount)}</b></button>`).join("")}<button type="button" class="fav addfav" id="addFav"><span>＋ 新增常用</span></button></div></div>`;
   const by={};for(const x of list)if(x.type!=="inc")by[x.cat]=(by[x.cat]||0)+(+x.amount||0);
@@ -830,7 +1187,7 @@ function renderHome(){
   v.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>openSheet({cat:b.dataset.q||null}));
   v.querySelectorAll("[data-fav]").forEach(b=>b.onclick=()=>quickFav(b.dataset.fav,b));
   $("#addFav").onclick=()=>openSheet({fav:true});
-  if($("#bAlert"))$("#bAlert").onclick=()=>go("budget");
+  if($("#bAlert"))$("#bAlert").onclick=()=>{S.budgetFrom="home";go("budget")};
   bindReminders(v);
   bindRows(v);
   if($("#seeAll"))$("#seeAll").onclick=()=>go("list");
@@ -901,7 +1258,50 @@ function foldCards(v){const st=foldState();
     const tog=()=>{const o=!c.classList.contains("open");c.classList.toggle("open",o);hd.setAttribute("aria-expanded",o);inner.inert=!o;const s=foldState();s[key]=o;foldSave(s)};
     hd.onclick=e=>{if(e.target.closest("button,a,input,select,label"))return;tog()};
     hd.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tog()}}})}
-function renderSettings(){renderSettings0();bindSync();bindSc();foldCards($("#v-set"))}
+
+/* iOS-style settings: root grouped list, each card becomes a pushed sub page */
+const IOS_IC={
+  cloud:'<path d="M7 19a5 5 0 0 1-.6-10A6.5 6.5 0 0 1 19 9.6 4.7 4.7 0 0 1 18 19Z"/>',
+  paint:'<path d="M12 3a9 9 0 0 0 0 18c1.1 0 1.6-.8 1.6-1.6 0-.4-.2-.8-.4-1.1-.3-.3-.4-.6-.4-1 0-.9.7-1.6 1.6-1.6H16a5 5 0 0 0 5-5c0-4.3-4-7.7-9-7.7Zm-5 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm3-4a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3Z"/>',
+  bell:'<path d="M12 2.5a6 6 0 0 0-6 6v3.6L4.4 15a1 1 0 0 0 .9 1.5h13.4a1 1 0 0 0 .9-1.5L18 12.1V8.5a6 6 0 0 0-6-6Zm-2.6 15.2a2.7 2.7 0 0 0 5.2 0Z"/>',
+  tag:'<path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h7.1a1.5 1.5 0 0 1 1 .4l8 8a1.5 1.5 0 0 1 0 2.1l-7.1 7.1a1.5 1.5 0 0 1-2.1 0l-8-8a1.5 1.5 0 0 1-.4-1ZM8 9.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z"/>',
+  star:'<path d="m12 2.5 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5-4.8-4.6 6.6-.9Z"/>',
+  minus:'<path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm2 7v2h10v-2Z"/>',
+  plus:'<path d="M5 4h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm6 3v4H7v2h4v4h2v-4h4v-2h-4V7Z"/>',
+  wallet:'<path d="M4 5h14a2 2 0 0 1 2 2v1h-4a4 4 0 0 0 0 8h4v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Zm12 5h6v4h-6a2 2 0 1 1 0-4Z"/>',
+  bolt:'<path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.6Z"/>',
+  box:'<path d="M3 5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2H3Zm1 4h16v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Zm5 3v2h6v-2Z"/>',
+  chart:'<path d="M4 20V11h3.5v9Zm6.25 0V4h3.5v16ZM16.5 20v-6H20v6Z"/>',
+  spark:'<path d="M11 2.5 13 9l6.5 2-6.5 2-2 6.5L9 13l-6.5-2L9 9Zm7.5 11 .9 2.6 2.6.9-2.6.9-.9 2.6-.9-2.6-2.6-.9 2.6-.9Z"/>'};
+const IOS_SUBS={budget:{t:"預算",i:"chart",c:"#34c759"},sync:{t:"雲端同步",i:"cloud",c:"#0088ff"},look:{t:"外觀",i:"paint",c:"#0088ff"},rem:{t:"提醒",i:"bell",c:"#ff383c"},
+  kw:{t:"關鍵字自動分類",i:"tag",c:"#ff8d28"},favs:{t:"常用項目",i:"star",c:"#ffcc00"},exp:{t:"支出分類",i:"minus",c:"#6155f5"},inc:{t:"收入分類",i:"plus",c:"#34c759"},
+  acct:{t:"帳戶",i:"wallet",c:"#00c3d0"},sc:{t:"捷徑快速記帳",i:"bolt",c:"#cb30e0"},bak:{t:"備份與匯出",i:"box",c:"#8e8e93"},news:{t:"更新摘要",i:"spark",c:"#ff2d55"}};
+function iosSubOf(c){if(c.classList.contains("whatsnew"))return"news";const byId={remCard:"rem",kwCard:"kw",syncCard:"sync",scCard:"sc",bakCard:"bak"};if(byId[c.id])return byId[c.id];
+  const h=(c.querySelector(".card-h h2")||{}).textContent||"";return h.includes("外觀")?"look":h.includes("常用")?"favs":h.includes("支出分類")?"exp":h.includes("收入分類")?"inc":h.includes("帳戶")?"acct":null}
+const iosChev='<svg class="chev" viewBox="0 0 8 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m1.5 1.5 5 5.5-5 5.5"/></svg>';
+function iosRow(id,val,sub){const m=IOS_SUBS[id];return`<button type="button" class="ios-cell" data-iosgo="${id}"><span class="ios-ic" style="background:${m.c}"><svg viewBox="0 0 24 24" fill="currentColor">${IOS_IC[m.i]}</svg></span><span class="tx"><b>${m.t}</b>${sub?`<small>${sub}</small>`:""}</span>${val!=null&&val!==""?`<span class="val">${esc(String(val))}</span>`:""}${iosChev}</button>`}
+function iosSettings(v){const cards=[...v.querySelectorAll(":scope > .card")];const have=new Set();
+  cards.forEach(c=>{const id=iosSubOf(c);if(id){c.dataset.sub=id;have.add(id)}});
+  const ver=v.querySelector(".ver");v.querySelector(".ios-list")?.remove();
+  if(S.setSub&&have.has(S.setSub)){cards.forEach(c=>c.hidden=c.dataset.sub!==S.setSub);if(ver)ver.hidden=true;
+    const c=v.querySelector(`.card[data-sub="${S.setSub}"]`);if(S.setAnim==="in"){c.classList.remove("ios-in");void c.offsetWidth;c.classList.add("ios-in")}S.setAnim="";return}
+  S.setSub=null;cards.forEach(c=>{if(c.dataset.sub)c.hidden=true});if(ver)ver.hidden=false;
+  const st=S.settings,thm=(THEMES.find(t=>t[0]===(st.accent||"blue"))||THEMES[0])[1],n=a=>(a||[]).length;
+  const prof=FB_CFG?`<button type="button" class="ios-cell ios-prof" data-iosgo="sync"><span class="av ${SYNC.user?"":"off"}">${SYNC.user?esc((SYNC.user.email||"?").slice(0,1).toUpperCase()):`<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.4 0-8 2.2-8 5v1.5h16V19c0-2.8-3.6-5-8-5Z"/></svg>`}</span><span class="tx"><b>${SYNC.user?esc(SYNC.user.email||"已登入"):"登入雲端同步"}</b><small>${SYNC.user?(SYNC.err?esc(SYNC.err):"雲端同步已開啟"):"免費自動備份，換手機也不怕"}</small></span>${iosChev}</button>`:"";
+  const lb=st.lastBackup?new Date(st.lastBackup):null;
+  const sec=(h,rows,f)=>rows?`<div class="ios-sec">${h?`<div class="h">${h}</div>`:""}<div class="ios-grp">${rows}</div>${f?`<div class="f">${f}</div>`:""}</div>`:"";
+  const tm=st.remindTime||"21:00",[hh,mi]=tm.split(":").map(Number),tmTxt=`${hh<12?"上午":"下午"} ${hh%12||12}:${String(mi).padStart(2,"0")}`;
+  const html=`<div class="ios-list">${prof?sec("",prof):""}
+    ${sec("一般",(have.has("look")?iosRow("look",thm):"")+(have.has("rem")?iosRow("rem",tmTxt):""))}
+    ${sec("記帳",iosRow("budget",st.budget?"每月 $"+fmt(st.budget):"未設定")+(have.has("kw")?iosRow("kw",n(st.keywords)+" 個"):"")+(have.has("favs")?iosRow("favs",n(st.favs)+" 個"):"")+(have.has("exp")?iosRow("exp",n(st.exp)+" 個"):"")+(have.has("inc")?iosRow("inc",n(st.inc)+" 個"):"")+(have.has("acct")?iosRow("acct",n(st.accounts)+" 個"):""))}
+    ${sec("進階",(have.has("sc")?iosRow("sc",st.scKey?"已設定":"未設定"):"")+(have.has("bak")?iosRow("bak",lb?`${lb.getMonth()+1}/${lb.getDate()} 備份`:"尚未備份"):""),SYNC.user?"":"資料目前只存在這支手機裡，建議登入雲端同步或定期備份。")}
+    ${sec("關於",have.has("news")?iosRow("news","Ver"+APP_VER):"")}</div>`;
+  if(ver)ver.insertAdjacentHTML("beforebegin",html);else v.insertAdjacentHTML("beforeend",html);
+  const list=v.querySelector(".ios-list");if(S.setAnim==="back"){list.classList.add("ios-back")}S.setAnim="";
+  list.querySelectorAll("[data-iosgo]").forEach(b=>b.onclick=()=>iosOpen(b.dataset.iosgo))}
+function iosOpen(id){if(id==="budget"){S.budgetFrom="set";go("budget");return}S.setSub=id;S.setAnim="in";renderSettings();window.scrollTo(0,0);document.querySelector(".appbar h1").textContent=IOS_SUBS[id].t}
+function iosBack(){S.setSub=null;S.setAnim="back";renderSettings();window.scrollTo(0,0);document.querySelector(".appbar h1").textContent="設定"}
+function renderSettings(){if(S.focusRem){S.setSub={"#bakCard":"bak","#remCard":"rem"}[S.focusRemSel||"#remCard"]||null}renderSettings0();bindSync();bindSc();iosSettings($("#v-set"))}
 function renderSettings0(){
   const v=$("#v-set");
   v.innerHTML=`${whatsNewHTML()}<div class="card"><div class="card-h"><h2>外觀</h2></div>
@@ -926,7 +1326,7 @@ function renderSettings0(){
   ${scCardHTML()}
   <div class="card" id="bakCard"><div class="card-h"><h2>備份與匯出</h2></div><p class="note">${SYNC.user?"已開啟雲端同步，資料會自動存到雲端。也可以另外匯出一份備份檔。":"資料只存在這支手機裡。建議開啟上面的雲端同步，或每月匯出一次備份。"}</p><div class="btns"><button class="btn" type="button" id="expCsv">匯出 Excel 用 CSV</button><button class="btn" type="button" id="expJson">匯出完整備份</button><label class="btn" for="impFile">匯入備份</label><input type="file" id="impFile" accept=".json,application/json" hidden></div><div id="expOut"></div></div>
   <p class="ver">Ver${APP_VER}</p>`;
-  v.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>{const k=ckey(b.dataset.cc,b.dataset.c);S.settings.colors[k]=((S.settings.colors[k]??0)+1)%NCOL;saveSettings()});
+  v.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>openColorPick(b,b.dataset.cc,b.dataset.c));
   v.querySelectorAll("[data-acc]").forEach(b=>b.onclick=()=>{S.settings.accent=b.dataset.acc;applyLook();saveSettings()});
   v.querySelectorAll("[data-bgm]").forEach(b=>b.onclick=()=>{S.settings.bg=b.dataset.bgm;applyLook();saveSettings()});
   $("#remTime").value=S.settings.remindTime||"21:00";$("#remTime").onchange=e=>{S.settings.remindTime=e.target.value;saveSettings()};
@@ -943,8 +1343,9 @@ function renderSettings0(){
   v.querySelectorAll("[data-tadd]").forEach(b=>{const k=b.dataset.tadd,inp=$("#add-"+k);const f=()=>{const val=inp.value.trim();if(!val)return;if(S.settings[k].includes(val)){toast("「"+val+"」已經有了");return}S.settings[k].push(val);ensureColors();saveSettings();toast("已新增「"+val+"」")};b.onclick=f;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();f()}}});
   $("#expCsv").onclick=()=>exportFile("csv");$("#expJson").onclick=()=>exportFile("json");$("#impFile").onchange=importFile;
 }
-const APP_VER="4.2.2";
+const APP_VER="4.3.0";
 const CHANGELOG=[
+  {v:"4.3.0",d:"2026/11/07",items:["全新 iOS 27 風格外觀：大標題、圓角分組清單、玻璃質感的底部選單","設定頁改成 iPhone 設定那樣的分組清單，點進去再看細項","首頁「快速記一筆」改成可以左右滑動，所有分類都在裡面","記一筆改成全螢幕的 iOS 樣式，還有專屬的計算機鍵盤，可以直接加減乘除","新增「訂閱」頁：集中管理 Netflix、Spotify 這類訂閱，看每月總共花多少、下次哪天扣款，到期自動記帳","新增訂閱時分類預設為「訂閱」，統計頁可以直接看出每月訂閱花多少","預算移到設定裡，底部選單改成首頁、明細、統計、訂閱","底部選單加上圖示，「記一筆」按鈕移到右下角","主題色增加到 16 種","分類顏色可以自己選：24 種預設色，也能自訂任何顏色"]},
   {v:"4.2.2",d:"2026/11/06",items:["新增「捷徑快速記帳」：用 iPhone 捷徑按一下就記帳，不用打開 App，也不會跳出 Safari","捷徑記的帳會標上「捷徑記帳」，Apple Pay 自動記的會標上「Apple Pay」","捷徑金鑰只能新增帳，不能讀取資料；可以隨時重新產生"]},
   {v:"4.2.1",d:"2026/11/06",items:["統計頁新增「記帳習慣」：本月有幾天記帳、幾天沒記帳、最長連續記帳幾天，還有小月曆一眼看出哪天漏記","統計頁新增「最常記的項目」：看出這個月最常花在哪裡","統計頁最下面可以把當月概況存成圖片，傳 LINE 或存到相簿"]},
   {v:"4.2.0",d:"2026/11/06",items:["新增免費雲端同步：用 Google 帳號或 Email 登入後，每次記帳自動存到雲端","換手機或刪掉 App 後，登入同一個帳號就能拿回所有資料","多支手機登入同一個帳號，資料會自動合併","雲端資料按年份分開存放，記再多年也不會超過上限"]},
@@ -956,12 +1357,12 @@ function whatsNewHTML(){const cur=CHANGELOG[0],seen=S.settings.seenVer===APP_VER
   return`<div class="card whatsnew${seen?"":" fresh"}"><div class="card-h"><h2>${seen?"":`<span class="newdot" aria-hidden="true"></span>`}本次更新 · Ver${cur.v}</h2><span>${cur.d}</span></div>
     <ul class="wn">${cur.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
     <details class="howto wnold"><summary>之前的更新</summary>${CHANGELOG.slice(1,3).map(c=>`<div class="wnv"><b>Ver${c.v}</b><span>${c.d}</span></div><ul class="wn">${c.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`).join("")}</details></div>`}
-const THEMES=[["blue","海洋藍","#2374BA"],["green","森林綠","#1F8A5B"],["teal","湖水綠","#0E7C86"],["purple","薰衣紫","#6B4FBF"],["pink","櫻花粉","#CC4880"],["orange","夕陽橘","#D2662A"]];
+const THEMES=[["blue","海洋藍","#2374BA"],["green","森林綠","#1F8A5B"],["teal","湖水綠","#0E7C86"],["purple","薰衣紫","#6B4FBF"],["pink","櫻花粉","#CC4880"],["orange","夕陽橘","#D2662A"],["indigo","靛青藍","#4F5BD5"],["sky","天空藍","#0A84C2"],["navy","海軍藍","#1F4E8C"],["lime","抹茶綠","#4E7F2A"],["grape","葡萄紫","#8E44AD"],["red","玫瑰紅","#D23F4E"],["wine","酒紅","#8E2846"],["gold","芥末黃","#A97A00"],["brown","可可棕","#8B5E3C"],["graphite","石墨灰","#4A5560"]];
 let GEAR="";const BACK=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>`;
 function applyLook(){const r=document.documentElement,a=S.settings.accent||"blue",b=S.settings.bg||"auto";
   if(a==="blue")r.removeAttribute("data-accent");else r.setAttribute("data-accent",a);
   if(b==="auto")r.removeAttribute("data-bg");else r.setAttribute("data-bg",b);}
-const ORDER={home:0,list:1,stats:2,budget:3,set:4};
+const ORDER={home:0,list:1,stats:2,subs:3,budget:4,set:5};
 function animateView(dir){const w=$("main .wrap");w.classList.remove("go-fwd","go-back");void w.offsetWidth;w.classList.add("go-"+dir);
   const kids=S.view==="list"&&$("#listBody")?[...$("#listBody").children]:[...$("#v-"+S.view).children];kids.forEach((c,i)=>c.style.setProperty("--k",Math.min(i,7)));
   const b=$("#bannerSlot");if(b)b.style.setProperty("--k",0);
@@ -1154,7 +1555,7 @@ function openSheet(o){
   $("#fAmount").value=t?t.amount:"";$("#fNote").value=t?t.note||"":"";
   closeWheel(true);setWhen(t?(t.ts&&t.ts>1e12&&ymd(new Date(t.ts))===t.date?new Date(t.ts):new Date(t.date+"T12:00")):(o&&o.when)||new Date());
   $("#favRow").hidden=!!t;$("#fFav").checked=!!(o&&o.fav);
-  $("#sheetTitle").textContent=t?"編輯記錄":"記一筆";$("#saveBtn").textContent=t?"儲存修改":"儲存記錄";
+  $("#saveBtn").textContent="儲存";closePad();
   $("#delSlot").innerHTML=t?`<button type="button" class="linkdel" id="delBtn">刪除這筆記錄</button>`:"";
   if(t)$("#delBtn").onclick=askDelete;
   drawType();
@@ -1162,10 +1563,10 @@ function openSheet(o){
   [...sh.children].forEach((c,i)=>c.style.setProperty("--i",i));
   lockScroll();sh.classList.remove("hide");sc.classList.remove("hide");sh.hidden=false;sc.hidden=false;
   sh.classList.remove("show");void sh.offsetWidth;sh.classList.add("show");
-  if(!t)setTimeout(()=>$("#fAmount").focus(),180);
+  if(!t)setTimeout(openPad,260);
 }
 function closeSheet(){
-  ddClose();closeWheel();
+  ddClose();closeWheel();closePad();
   const sh=$("#sheet"),sc=$("#scrim");if(sh.hidden)return;
   if(matchMedia("(prefers-reduced-motion:reduce)").matches){sh.hidden=true;sc.hidden=true;unlockScroll();return}
   sh.classList.remove("show");sh.classList.add("hide");sc.classList.add("hide");
@@ -1232,6 +1633,7 @@ function fillSelects(cat,acct){
 function updateDot(){$("#fCatDot").style.background=catColor(F.type,ddGet("fCat"))}
 function drawType(){
   document.querySelectorAll("#sheet .seg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.type===F.type));
+  $("#sheetTitle").textContent=F.editing?(F.type==="inc"?"編輯收入":"編輯支出"):(F.type==="inc"?"新收入":"新支出");$("#amtSign").textContent=F.type==="inc"?"+":"-";
   $("#amountBox").classList.toggle("inc",F.type==="inc");updateHint();
 }
 function evalAmount(s){
@@ -1254,7 +1656,7 @@ $("#akeys").onclick=e=>{const b=e.target.closest("button");if(!b)return;const in
   updateHint();b.classList.remove("pop");void b.offsetWidth;b.classList.add("pop")};
 $("#sheet").onsubmit=e=>{
   e.preventDefault();const amt=evalAmount($("#fAmount").value);
-  if(amt==null||isNaN(amt)||amt<=0){toast("請輸入大於 0 的金額");$("#fAmount").focus();return}
+  if(amt==null||isNaN(amt)||amt<=0){toast("請輸入大於 0 的金額");openPad();return}
   const when=F.when||new Date();const date=isNaN(when)?ymd(new Date()):ymd(when);
   const t={id:F.editing?F.editing.id:uid(),type:F.type,cat:ddGet("fCat"),acct:ddGet("fAcct"),amount:amt,date,note:$("#fNote").value.trim(),ts:isNaN(when)?Date.now():when.getTime()};if(F.editing&&F.editing.src)t.src=F.editing.src;
   exitSample();
@@ -1304,9 +1706,9 @@ function getReminders(){const out=[],now=new Date(),today=ymd(now),dis=S.setting
   if(remOn("log")&&S.tx.length){
     if(S.tx.some(t=>t.date<yds)&&!S.tx.some(t=>t.date===yds&&!t.rid))out.push({key:"y:"+yds,tone:"info",text:`昨天 ${fmtMD(yds)} 沒有記帳`,act:"補記昨天",fn:()=>openSheet({when:new Date(yd.getFullYear(),yd.getMonth(),yd.getDate(),12,0)})});
     else if(now.getHours()>=21&&!S.tx.some(t=>t.date===today&&!t.rid))out.push({key:"t:"+today,tone:"info",text:"今天還沒有記帳",act:"記一筆",fn:()=>openSheet({})})}
-  if(remOn("rec"))for(const r of S.settings.recurring||[]){const m=r.next||ym(now),d=Math.min(r.day,daysIn(m)),ds=m+"-"+pad(d);
+  if(remOn("rec"))for(const r of S.settings.recurring||[]){const nd=recNext(r);if(!nd)continue;const ds=ymd(nd),m=ds.slice(0,7);
     const diff=Math.round((new Date(ds+"T00:00:00")-new Date(today+"T00:00:00"))/864e5);
-    if(diff>0&&diff<=3)out.push({key:"r:"+r.id+":"+m,tone:"info",text:`${esc(r.name)} ${r.type==="inc"?"+":"−"}$${fmt(r.amount)} 將在 ${diff===1?"明天":fmtMD(ds)}自動記入`,act:"查看",fn:()=>go("budget")})}
+    if(diff>0&&diff<=3)out.push({key:"r:"+r.id+":"+m,tone:"info",text:`${esc(r.name)} ${r.type==="inc"?"+":"−"}$${fmt(r.amount)} 將在 ${diff===1?"明天":fmtMD(ds)}自動記入`,act:"查看",fn:()=>{if(r.sub)go("subs");else{S.budgetFrom="home";go("budget")}}})}
   const b=+S.settings.budget||0;if(remOn("bud")&&b){const e=totals(monthTx(ym(now))).e;if(e/b>=.9)out.push({key:"b:"+ym(now)+(e>b?":o":""),tone:e>b?"bad":"warn",text:e>b?`本月已超支 $${fmt(e-b)}`:`本月預算已用 ${Math.floor(e/b*100)}%，剩 $${fmt(b-e)}`,act:"看預算",fn:()=>go("budget")})}
   if(remOn("card"))for(const c of S.settings.cards||[]){const cy=cardCycle(c),last=cardSpend(c.acct,cy.lastFrom,cy.lastTo);if(last<=0||(c.paid||{})[cy.key])continue;
     const diff=Math.round((cy.due-dayStart(now))/864e5);if(diff>=0&&diff<=3)out.push({key:"c:"+c.id+":"+cy.key,tone:diff<=1?"warn":"info",text:`${esc(c.acct)} 卡費 $${fmt(last)} ${diff===0?"今天":diff===1?"明天":fmtMD(ymd(cy.due))}到期`,act:"已繳",fn:()=>{markCardPaid(c,cy.key,true)}})}
@@ -1350,8 +1752,9 @@ function quickFav(id,btn){const f=(S.settings.favs||[]).find(x=>x.id===id);if(!f
 
 /* ===== recurring ===== */
 function runRecurring(){const now=new Date(),cur=ym(now);let n=0;
-  for(const r of S.settings.recurring||[]){let m=r.next||cur;
+  for(const r of S.settings.recurring||[]){let m=r.next||cur;if(r.paused){if(m<cur)r.next=cur;continue}
     while(m<=cur){const d=Math.min(r.day,daysIn(m));if(m===cur&&d>now.getDate())break;
+      if(r.cycle==="y"&&+m.slice(5)!==(r.month||1)){m=shiftMonth(m,1);continue}
       if(!S.tx.some(t=>t.rid===r.id&&t.date.slice(0,7)===m)){const[y,mm]=m.split("-").map(Number);
         S.tx.push({id:uid(),type:r.type,cat:r.cat,acct:r.acct,amount:r.amount,date:m+"-"+pad(d),note:r.name,ts:new Date(y,mm-1,d,9,0).getTime(),rid:r.id});n++}
       m=shiftMonth(m,1)}r.next=m}
@@ -1363,14 +1766,22 @@ document.addEventListener("visibilitychange",()=>{if(document.visibilityState===
 window.addEventListener("pageshow",e=>{if(e.persisted)refreshHome(true)});
 setInterval(()=>{if(document.visibilityState==="visible")refreshHome(false)},60000);
 function nextDue(r){const now=new Date(),cur=ym(now);let m=r.next||cur;const d=Math.min(r.day,daysIn(m));return`${+m.slice(5)}/${d}`}
-const R={editing:null,type:"exp",start:0};
-function openRec(r){R.editing=r||null;R.type=r?r.type:"exp";R.start=0;
-  $("#recTitle").textContent=r?"編輯固定收支":"新增固定收支";$("#rName").value=r?r.name:"";$("#rAmt").value=r?r.amount:"";
+const R={editing:null,type:"exp",start:0,sub:false,cy:"m"};
+function openRec(r,asSub,preset){R.editing=r||null;R.type=r?r.type:"exp";R.start=0;R.sub=r?!!r.sub:!!asSub;R.cy=r&&r.cycle==="y"?"y":"m";
+  const sb=R.sub;$("#recSheet .seg[aria-label='類型']").hidden=sb;$("#rCycF").hidden=!sb;$("#rPauseF").hidden=!(sb&&r);$("#rPause").checked=!!(r&&r.paused);
+  $("#rMon").value=String(r&&r.month||new Date().getMonth()+1);$("label[for='rAmt']").textContent=sb?"金額":"每月金額";$("#rName").placeholder=sb?"例如：Netflix、Spotify、iCloud+":"例如：房租、手機費、薪水";
+  if(sb&&!r)R.type="exp";
+  $("#recTitle").textContent=sb?(r?"編輯訂閱":"新增訂閱"):(r?"編輯固定收支":"新增固定收支");$("#rName").value=r?r.name:"";$("#rAmt").value=r?r.amount:"";
   $("#rDay").value=String(r?r.day:new Date().getDate());$("#rStartF").hidden=!!r;
   $("#recDel").innerHTML=r?`<button type="button" class="linkdel" id="recDelBtn">刪除這個固定收支</button>`:"";
   if(r)$("#recDelBtn").onclick=askRecDel;
-  drawRec(r?r.cat:null,r?r.acct:null);openDlg($("#recSheet"),$("#recScrim"));if(!r)setTimeout(()=>$("#rName").focus(),180)}
+  if(preset){$("#rName").value=preset.name;$("#rAmt").value=preset.amount||""}
+  $("#recDel").innerHTML=r?`<button type="button" class="linkdel" id="recDelBtn">刪除這個${sb?"訂閱":"固定收支"}</button>`:"";if(r)$("#recDelBtn").onclick=askRecDel;
+  drawRec(r?r.cat:(sb?subCatGuess(preset&&preset.name):null),r?r.acct:(sb&&S.settings.accounts.includes("信用卡")?"信用卡":null));openDlg($("#recSheet"),$("#recScrim"));if(!r)setTimeout(()=>$(preset?"#rAmt":"#rName").focus(),180)}
+function subCatGuess(){const e=S.settings.exp;if(!e.includes("訂閱")){e.push("訂閱");ensureColors()}return"訂閱"}
 function drawRec(cat,acct){
+  document.querySelectorAll("#recSheet [data-cy]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.cy===R.cy));$("#rMonF").hidden=!(R.sub&&R.cy==="y");
+  $("#rDayL").textContent=R.sub?(R.cy==="y"?"扣款日":"每月幾號扣款"):"每月幾號記帳";
   document.querySelectorAll("#recSheet [data-rt]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.rt===R.type));
   document.querySelectorAll("#recSheet [data-s]").forEach(b=>b.setAttribute("aria-pressed",+b.dataset.s===R.start));
   $("#rAmtBox").classList.toggle("inc",R.type==="inc");
@@ -1380,23 +1791,121 @@ function drawRec(cat,acct){
   $("#rAcct").innerHTML=ac.map(x=>`<option>${esc(x)}</option>`).join("");$("#rAcct").value=a;
   $("#rCatDot").style.background=catColor(R.type,$("#rCat").value);recHint()}
 function recHint(){const d=+$("#rDay").value,today=new Date().getDate();
+  $("#rStartF").querySelector(".seg").hidden=false;$("#rStartF").querySelector(".fl").hidden=false;
+  if(R.sub&&R.cy==="y"){const mo=+$("#rMon").value,nowM=new Date().getMonth()+1;$("#rStartF").querySelector(".seg").hidden=true;$("#rStartF").querySelector(".fl").hidden=true;
+    $("#rHint").textContent=`每年 ${mo} 月 ${d} 號自動記一筆${mo===nowM&&d<=today&&!R.editing?"，這個月已經過了，儲存後會馬上記入今年這筆":""}。`;$("#rHint").parentElement.hidden=false;return}
+  if(!R.editing)$("#rStartF").hidden=false;
   $("#rHint").textContent=R.start===0?(d<=today?`這個月 ${d} 號已經過了，儲存後會馬上記入一筆。如果這個月已經自己記過，請選「下個月」。`:`這個月 ${d} 號會自動記入第一筆。`):`從下個月 ${d} 號開始自動記帳。`}
 function askRecDel(){$("#recDel").innerHTML=`<div class="confirm">確定刪除？已經記入的紀錄會保留。<button type="button" class="btn danger" id="rdYes">刪除</button><button type="button" class="btn" id="rdNo">取消</button></div>`;
-  $("#rdNo").onclick=()=>{$("#recDel").innerHTML=`<button type="button" class="linkdel" id="recDelBtn">刪除這個固定收支</button>`;$("#recDelBtn").onclick=askRecDel};
-  $("#rdYes").onclick=()=>{S.settings.recurring=(S.settings.recurring||[]).filter(x=>x!==R.editing);saveSettings();closeDlg($("#recSheet"),$("#recScrim"));toast("已刪除固定收支")}}
+  $("#rdNo").onclick=()=>{$("#recDel").innerHTML=`<button type="button" class="linkdel" id="recDelBtn">刪除這個${R.sub?"訂閱":"固定收支"}</button>`;$("#recDelBtn").onclick=askRecDel};
+  $("#rdYes").onclick=()=>{S.settings.recurring=(S.settings.recurring||[]).filter(x=>x!==R.editing);saveSettings();closeDlg($("#recSheet"),$("#recScrim"));toast(R.sub?"已刪除訂閱":"已刪除固定收支")}}
 document.querySelectorAll("#recSheet [data-rt]").forEach(b=>b.onclick=()=>{if(R.type===b.dataset.rt)return;R.type=b.dataset.rt;$("#rCat").value="";drawRec()});
 document.querySelectorAll("#recSheet [data-s]").forEach(b=>b.onclick=()=>{R.start=+b.dataset.s;drawRec($("#rCat").value,$("#rAcct").value)});
-$("#rCat").onchange=()=>{$("#rCatDot").style.background=catColor(R.type,$("#rCat").value)};$("#rDay").onchange=recHint;
+$("#rCat").onchange=()=>{$("#rCatDot").style.background=catColor(R.type,$("#rCat").value)};$("#rDay").onchange=recHint;$("#rMon").onchange=recHint;
+document.querySelectorAll("#recSheet [data-cy]").forEach(b=>b.onclick=()=>{R.cy=b.dataset.cy;drawRec($("#rCat").value,$("#rAcct").value)});
 $("#recClose").onclick=()=>closeDlg($("#recSheet"),$("#recScrim"));$("#recScrim").onclick=()=>closeDlg($("#recSheet"),$("#recScrim"));
 $("#recSheet").onsubmit=e=>{e.preventDefault();const name=$("#rName").value.trim(),amt=evalAmount($("#rAmt").value);
   if(!name){toast("請輸入名稱");$("#rName").focus();return}if(amt==null||isNaN(amt)||amt<=0){toast("請輸入大於 0 的金額");$("#rAmt").focus();return}
   const base={type:R.type,name,amount:amt,cat:$("#rCat").value,acct:$("#rAcct").value,day:+$("#rDay").value};
+  if(R.sub){base.sub=true;base.cycle=R.cy;if(R.cy==="y")base.month=+$("#rMon").value;else delete base.month;base.paused=R.editing?$("#rPause").checked:false}
   S.settings.recurring=S.settings.recurring||[];let msg;
-  if(R.editing){Object.assign(R.editing,base);msg="已更新固定收支，之後的紀錄會用新設定"}
-  else{const cur=ym(new Date());S.settings.recurring.push({id:uid(),...base,next:R.start?shiftMonth(cur,1):cur});msg="已新增固定收支"}
+  const what=R.sub?"訂閱":"固定收支";
+  if(R.editing){const wasP=R.editing.paused;Object.assign(R.editing,base);if(R.sub&&R.cy==="m")delete R.editing.month;if(wasP&&!base.paused)R.editing.next=ym(new Date());msg=`已更新${what}`}
+  else{const cur=ym(new Date());S.settings.recurring.push({id:uid(),...base,next:R.sub&&R.cy==="y"?cur:(R.start?shiftMonth(cur,1):cur)});msg=`已新增${what}`}
   closeDlg($("#recSheet"),$("#recScrim"));
   if(S.sample&&!R.editing){/* keep demo data, just add */}
   const n=runRecurring();saveSettings();toast(n?`${msg}，並記入 ${n} 筆`:msg)};
+
+
+/* replace the browser's own select popup with an iOS-style menu when using a mouse */
+(function(){let cur=null;
+  const tick='<svg class="tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>';
+  function close(){if(cur){cur.m.remove();cur.sel.focus({preventScroll:true});cur=null}}
+  function open(sel){close();const box=sel.closest(".fbox")||sel,r=box.getBoundingClientRect();const m=document.createElement("div");m.className="nmenu";m.setAttribute("role","listbox");
+    m.innerHTML=[...sel.options].map(o=>`<button type="button" role="option" class="ddopt" aria-selected="${o.value===sel.value}" data-v="${esc(o.value)}"><span>${esc(o.text)}</span>${tick}</button>`).join("");
+    document.body.appendChild(m);const w=Math.max(r.width,170);m.style.width=w+"px";m.style.left=Math.max(8,Math.min(r.left,innerWidth-w-8))+"px";
+    const below=innerHeight-r.bottom-14,above=r.top-14,down=below>=Math.min(m.offsetHeight,220)||below>=above;m.style.maxHeight=Math.min(300,down?below:above)+"px";
+    const h=m.offsetHeight;m.style.top=(down?r.bottom+6:Math.max(8,r.top-h-6))+"px";
+    const sb=m.querySelector('[aria-selected="true"]');if(sb){sb.scrollIntoView({block:"nearest"});sb.focus({preventScroll:true})}
+    m.onclick=e=>{const b=e.target.closest("[data-v]");if(!b)return;sel.value=b.dataset.v;sel.dispatchEvent(new Event("change",{bubbles:true}));close()};
+    m.onkeydown=e=>{const bs=[...m.querySelectorAll(".ddopt")],i=bs.indexOf(document.activeElement);
+      if(e.key==="ArrowDown"){e.preventDefault();(bs[i+1]||bs[0]).focus()}else if(e.key==="ArrowUp"){e.preventDefault();(bs[i-1]||bs[bs.length-1]).focus()}
+      else if(e.key==="Escape"){e.preventDefault();e.stopPropagation();close()}else if(e.key==="Tab")close()};
+    cur={m,sel}}
+  document.addEventListener("pointerdown",e=>{if(cur&&!cur.m.contains(e.target)&&e.target!==cur.sel){close()}
+    const s=e.target.closest&&e.target.closest("select.nsel");if(!s||e.pointerType==="touch")return;e.preventDefault();if(cur&&cur.sel===s){close();return}s.focus({preventScroll:true});open(s)},true);
+  document.addEventListener("keydown",e=>{if(cur&&e.key==="Escape"){e.preventDefault();e.stopPropagation();close()}},true);
+  document.addEventListener("scroll",e=>{if(cur&&!cur.m.contains(e.target))close()},true);
+  window.addEventListener("resize",close);
+})();
+
+/* category colour picker */
+const EXTRA_COLS=["#E74C3C","#F39C12","#F1C40F","#2ECC71","#1ABC9C","#3498DB","#2C3E50","#9B59B6","#E84393","#7F8C8D","#6D4C41","#00838F"];
+function openColorPick(anchor,type,cat){document.querySelector(".cpick")?.remove();const k=ckey(type,cat),cur=S.settings.colors[k];
+  const used=new Set(S.settings[type].filter(x=>x!==cat).map(x=>String(S.settings.colors[ckey(type,x)]).toLowerCase()));
+  const opts=[...Array(NCOL).keys()].map(i=>({v:i,css:`var(--c${i+1})`})).concat(EXTRA_COLS.map(h=>({v:h,css:h})));
+  const el=document.createElement("div");el.className="cpick";el.setAttribute("role","dialog");el.setAttribute("aria-label",`${cat} 的顏色`);
+  el.innerHTML=`<h3><i style="background:${catColor(type,cat)}"></i>${esc(cat)} 的顏色</h3><div class="cpgrid">${opts.map(o=>`<button type="button" data-v="${o.v}" style="background:${o.css}" class="${used.has(String(o.v).toLowerCase())?"used":""}" aria-pressed="${String(cur).toLowerCase()===String(o.v).toLowerCase()}" aria-label="顏色"></button>`).join("")}</div>
+    <label class="cpcustom"><input type="color" id="cpIn" value="${typeof cur==="string"?cur:"#888888"}">自訂顏色</label><p class="cpnote">右下角有小圓圈的顏色，已經被其他分類用了。</p>`;
+  document.body.appendChild(el);const r=anchor.getBoundingClientRect(),w=el.offsetWidth,h=el.offsetHeight;
+  el.style.left=(innerWidth<500?(innerWidth-w)/2:Math.max(12,Math.min(r.left-20,innerWidth-w-12)))+"px";el.style.top=(r.bottom+8+h<innerHeight-8?r.bottom+8:Math.max(8,r.top-h-8))+"px";
+  const set=v=>{S.settings.colors[k]=v;saveSettings()};
+  el.querySelectorAll("[data-v]").forEach(b=>b.onclick=()=>{const v=b.dataset.v;set(/^\d+$/.test(v)?+v:v);el.remove()});
+  el.querySelector("#cpIn").onchange=e=>{set(e.target.value.toLowerCase());el.remove()};
+  setTimeout(()=>{const off=e=>{if(!el.isConnected){document.removeEventListener("pointerdown",off,true);return}if(!el.contains(e.target)){el.remove();document.removeEventListener("pointerdown",off,true)}};document.addEventListener("pointerdown",off,true)},0);
+  (el.querySelector('[aria-pressed="true"]')||el.querySelector("button")).focus({preventScroll:true})}
+document.addEventListener("keydown",e=>{const c=document.querySelector(".cpick");if(c&&e.key==="Escape"){e.stopPropagation();c.remove()}},true);
+
+/* entry keypad */
+function openPad(){const sh=$("#sheet");if(sh.hidden)return;ddClose();closeWheel();if(document.activeElement&&document.activeElement!==document.body&&document.activeElement.blur)document.activeElement.blur();
+  const k=$("#kpad");if(!k.hidden)return;k.hidden=false;sh.classList.add("padopen");$("#amountBox").scrollIntoView({block:"nearest"})}
+function closePad(){const k=$("#kpad");if(!k||k.hidden)return;k.hidden=true;$("#sheet").classList.remove("padopen")}
+function padKey(k){const inp=$("#fAmount");let v=inp.value;const ops="+-*/";
+  if(k==="del")v=v.slice(0,-1);
+  else if(k==="="){const r=evalAmount(v);if(r!=null&&!isNaN(r))v=String(Math.round(r*100)/100)}
+  else if(ops.includes(k)){if(!v)return;if(ops.includes(v.slice(-1)))v=v.slice(0,-1);v+=k}
+  else if(k==="."){const last=v.split(/[+\-*/]/).pop();if(last.includes("."))return;v+=last?".":"0."}
+  else{const last=v.split(/[+\-*/]/).pop();if(last==="0")v=v.slice(0,-1);if(last.replace(".","").length>=9)return;v+=k}
+  if(v.length>40)return;inp.value=v;updateHint()}
+$("#amountBox").onclick=openPad;$("#amountBox").onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openPad()}};
+$("#kpad").addEventListener("click",e=>{const b=e.target.closest("[data-k]");if(b){padKey(b.dataset.k);if(navigator.vibrate)try{navigator.vibrate(5)}catch(_){}}});
+$("#kDone").onclick=()=>{const v=$("#fAmount").value;if(/[+\-*/]/.test(v))padKey("=");closePad()};
+$("#sheet").addEventListener("pointerdown",e=>{if(e.target.closest("#kpad,#amountBox,.akeys,#saveBtn"))return;closePad()},true);
+$("#fNote").addEventListener("focus",closePad);
+document.addEventListener("keydown",e=>{const k=$("#kpad");if(!k||k.hidden||$("#sheet").hidden)return;if(e.target.closest&&e.target.closest("input:not(#fAmount),textarea"))return;
+  if(/^[0-9]$/.test(e.key)||"+-*/.".includes(e.key)&&e.key.length===1){e.preventDefault();padKey(e.key)}
+  else if(e.key==="Backspace"){e.preventDefault();padKey("del")}
+  else if(e.key==="Enter"||e.key==="="){e.preventDefault();$("#kDone").click()}
+  else if(e.key==="Escape"){e.preventDefault();e.stopImmediatePropagation();closePad()}},true);
+/* ===== subscriptions ===== */
+function recNext(r){if(r.paused)return null;const now=new Date(),cur=ym(now);let m=r.next||cur;
+  for(let i=0;i<24;i++){const d=Math.min(r.day,daysIn(m));if(r.cycle!=="y"||+m.slice(5)===(r.month||1)){const[y,mm]=m.split("-").map(Number);return new Date(y,mm-1,d)}m=shiftMonth(m,1)}return null}
+function subMonthly(r){return r.cycle==="y"?r.amount/12:r.amount}
+const SUB_PRESETS=[["Netflix",390],["Spotify",149],["YouTube Premium",199],["iCloud+",30],["Apple Music",165],["Disney+",270],["ChatGPT Plus",650],["Google One",65]];
+function subColor(n){let h=0;for(const ch of n)h=(h*31+ch.codePointAt(0))>>>0;return`var(--c${h%12+1})`}
+function renderSubs(){const all=(S.settings.recurring||[]).filter(r=>r.sub),act=all.filter(r=>!r.paused);
+  const mon=act.reduce((a,r)=>a+subMonthly(r),0),today=dayStart(new Date());
+  const withNext=act.map(r=>({r,d:recNext(r)})).filter(x=>x.d).sort((a,b)=>a.d-b.d);
+  const soon=withNext.filter(x=>(x.d-today)/864e5<=3);
+  const days=d=>{const n=Math.round((d-today)/864e5);return n<=0?"今天":n===1?"明天":`${n} 天後`};
+  const icon=r=>`<span class="tile" style="--c:${subColor(r.name)};background:${subColor(r.name)}">${esc([...r.name][0].toUpperCase())}</span>`;
+  const cyTxt=r=>r.cycle==="y"?`每年 ${r.month||1}/${r.day}`:`每月 ${r.day} 號`;
+  let h=`<div class="card subsum"><div class="card-h"><h2>每月訂閱</h2><span>${act.length} 個使用中</span></div>
+    <div class="subbig tn">$${fmt(Math.round(mon))}<small>/ 月</small></div>
+    <div class="minis"><div><span>一年共</span><b class="tn">$${fmt(Math.round(mon*12))}</b></div><div><span>最貴</span><b>${act.length?esc([...act].sort((a,b)=>subMonthly(b)-subMonthly(a))[0].name):"—"}</b></div><div><span>下一筆</span><b>${withNext[0]?days(withNext[0].d):"—"}</b></div></div></div>`;
+  if(soon.length)h+=`<div class="sec-h"><h2>即將扣款</h2><span>3 天內</span></div><div class="card subgrp"><div class="rows">${soon.map(({r,d})=>`<button type="button" class="subrow" data-sub="${esc(r.id)}">${icon(r)}<span class="rmain"><b>${esc(r.name)}</b><span>${d.getMonth()+1}/${d.getDate()} · ${esc(r.acct)}</span></span><span class="subamt"><b class="tn">$${fmt(r.amount)}</b><em class="${(d-today)/864e5<=3?"hot":""}">${days(d)}</em></span></button>`).join("")}</div></div>`;
+  h+=`<div class="sec-h"><h2>全部訂閱</h2><span>${all.length?"點一下可以修改":""}</span></div>`;
+  h+=all.length?`<div class="card subgrp"><div class="rows">${all.map(r=>`<button type="button" class="subrow ${r.paused?"paused":""}" data-sub="${esc(r.id)}">${icon(r)}<span class="rmain"><b>${esc(r.name)}</b><span>${cyTxt(r)} · ${esc(r.cat)}</span></span><span class="subamt"><b class="tn">$${fmt(r.amount)}</b>${(()=>{if(r.paused)return`<em>已暫停</em>`;const nd=recNext(r);if(!nd)return"";const n=Math.round((nd-today)/864e5);return`<em class="${n<=3?"hot":"due"}">${days(nd)}扣款</em>`})()}</span></button>`).join("")}</div></div>`
+    :`<div class="card subempty"><b>還沒有訂閱</b><p class="note">把 Netflix、Spotify 這類每月扣款加進來，到期當天會自動記一筆，還會先提醒你。</p></div>`;
+  h+=`<button type="button" class="sharebtn" id="addSub">＋ 新增訂閱</button>`;
+  const used=new Set(all.map(r=>r.name.toLowerCase()));const pre=SUB_PRESETS.filter(([n])=>!used.has(n.toLowerCase()));
+  if(pre.length)h+=`<div class="sec-h"><h2>常見訂閱</h2><span>點一下快速加入</span></div><div class="subpre">${pre.map(([n,a])=>`<button type="button" class="fav" data-pre="${esc(n)}" data-amt="${a}"><span>${esc(n)}</span><b class="tn">$${a}</b></button>`).join("")}</div>
+    <p class="note subfoot">價格只是參考，加入時可以改成你實際的方案金額。</p>`;
+  const v=$("#v-subs");v.innerHTML=h;
+  v.querySelectorAll("[data-sub]").forEach(b=>b.onclick=()=>openRec((S.settings.recurring||[]).find(r=>r.id===b.dataset.sub)));
+  $("#addSub").onclick=()=>openRec(null,true);
+  v.querySelectorAll("[data-pre]").forEach(b=>b.onclick=()=>openRec(null,true,{name:b.dataset.pre,amount:b.dataset.amt}));
+}
 
 /* ===== budget ===== */
 function budgetRows(m){const lim=S.settings.catBudget||{},by={};
@@ -1414,7 +1923,7 @@ function renderBudget(){
   h+=`<div class="card"><div class="card-h"><h2>分類預算</h2><span>點金額可以修改</span></div><div class="brows">${rows.map(r=>{const lv=level(r.spent,r.limit),p=r.limit?r.spent/r.limit:0;
     return`<div class="brow ${lv}"><span class="qdot sm" style="background:${catColor("exp",r.cat)}">${esc(r.cat.slice(0,1))}</span><div class="bmain"><div class="btop"><b>${esc(r.cat)}</b><span class="tn">${r.limit?`$${fmt(r.spent)} / `:`已花 $${fmt(r.spent)}`}</span><div class="bin sm"><span>$</span><input class="tn" inputmode="numeric" data-cb="${esc(r.cat)}" value="${r.limit||""}" placeholder="未設定" aria-label="${esc(r.cat)} 的每月上限"></div></div>
       ${r.limit?`<div class="pbar thin ${lv}"><div style="width:${Math.min(100,p*100)}%"></div></div><div class="bnote">${p>1?`超支 $${fmt(r.spent-r.limit)}`:`剩 $${fmt(r.limit-r.spent)}${p>=.8?" · 快用完了":""}`}</div>`:""}</div></div>`}).join("")}</div></div>`;
-  const rec=S.settings.recurring||[];
+  const rec=(S.settings.recurring||[]).filter(r=>!r.sub);
   h+=`<div class="card"><div class="card-h"><h2>固定收支</h2><span>每月自動記帳</span></div><div class="recs">${rec.length?rec.map((r,i)=>`<button type="button" class="rec" data-ri="${i}"><span class="qdot sm" style="background:${catColor(r.type,r.cat)}">${esc(r.cat.slice(0,1))}</span><span class="rmain"><b>${esc(r.name)}</b><span>每月 ${r.day} 號 · ${esc(r.cat)} · ${esc(r.acct)} · 下次 ${nextDue(r)}</span></span><span class="amt tn ${r.type==="inc"?"inc":""}">${r.type==="inc"?"+":"−"}$${fmt(r.amount)}</span></button>`).join(""):`<div class="emptyline">房租、手機費、訂閱、薪水這類每月固定的收支，設定一次就會自動記帳。</div>`}</div><button type="button" class="more" id="addRec">＋ 新增固定收支</button></div>`;
   const v=$("#v-budget");v.innerHTML=h;
   $("#sBudget").onchange=e=>{S.settings.budget=Math.max(0,Math.round(+String(e.target.value).replace(/[^\d.]/g,"")||0));saveSettings();toast(S.settings.budget?"總預算已更新":"已取消總預算")};
@@ -1563,7 +2072,7 @@ $("#closeSheet").onclick=closeSheet;$("#scrim").onclick=closeSheet;
 document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeSheet();closeDlg($("#recSheet"),$("#recScrim"));closeDlg($("#cardSheet"),$("#cardScrim"))}});
 $("#addBtn").onclick=()=>openSheet({});
 let prevView="home";
-$("#gear").onclick=()=>{if(S.view==="set")go(prevView);else{prevView=S.view;go("set")}};
+$("#gear").onclick=()=>{if(S.view==="budget"){go(S.budgetFrom||"set");return}if(S.view==="set"){if(S.setSub){iosBack();return}go(prevView)}else{prevView=S.view;S.setSub=null;go("set")}};
 document.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{if(b.dataset.go==="list")S.month=ym(new Date());if(b.dataset.go==="stats")S.smonth=ym(new Date());go(b.dataset.go)});
 init();
 if("serviceWorker" in navigator&&location.hostname.endsWith("github.io")){window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}))}
