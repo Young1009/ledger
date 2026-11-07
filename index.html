@@ -448,6 +448,22 @@ html.locked{overscroll-behavior:none}
 .tbar:hover rect:nth-child(2){filter:brightness(1.05)}
 .monthbar .round[disabled]{opacity:.35;cursor:default}
 .ranks{display:grid;gap:14px}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px 4px;margin-top:2px}
+.cal b{font-size:11px;font-weight:600;color:var(--muted);text-align:center}
+.cal i{font-style:normal;font-size:12px;display:flex;align-items:center;justify-content:center;width:min(100%,34px);aspect-ratio:1;justify-self:center;border-radius:50%;background:var(--surface2);color:var(--muted)}
+.cal i.ok{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.cal i.td{box-shadow:inset 0 0 0 2px var(--accent);color:var(--ink);background:none}
+.cal i.fu,.cal i.pre{background:none;opacity:.45}
+.cal i.no{background:var(--surface2);color:var(--ink)}
+.habit-note{font-size:12.5px;color:var(--muted);margin-top:10px}
+.tops{display:grid;gap:0}
+.top{display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.top:first-child{border-top:0;padding-top:0}
+.top .rn{font-size:13px;color:var(--muted);text-align:center}
+.top b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.top small{font-size:12.5px;color:var(--muted)}
+.top .tc{font-size:14px;font-weight:700;text-align:right}
+.sharebtn{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--accent);font:inherit;font-weight:700;font-size:15px;border-radius:var(--r);padding:14px;cursor:pointer}
 .rk{display:grid;grid-template-columns:16px 30px minmax(0,1fr);gap:10px;align-items:center}
 .rn{font-size:13px;font-weight:900;color:var(--muted);text-align:center}
 .qdot.sm{width:30px;height:30px;font-size:13px}
@@ -500,6 +516,10 @@ select option{background:var(--surface);color:var(--ink)}
 
 /* reminders */
 .howto{margin-top:12px;font-size:14px}
+.srctag{display:inline-block;font-style:normal;font-size:11px;font-weight:700;line-height:1;padding:3px 6px;border-radius:999px;background:var(--surface2);color:var(--accent);vertical-align:1px}
+.sckey{display:block;width:100%;font:600 13px ui-monospace,Menlo,monospace;word-break:break-all;background:var(--surface2);border-radius:10px;padding:10px 12px;margin:0 0 10px;color:var(--ink);user-select:all;-webkit-user-select:all}
+.scsteps{margin:8px 0 0;padding-left:20px;display:grid;gap:6px;color:var(--ink)}
+.scsteps code{font:600 12.5px ui-monospace,Menlo,monospace;background:var(--surface2);padding:1px 5px;border-radius:5px;word-break:break-all}
 .howto summary{cursor:pointer;color:var(--accent);font-weight:700;list-style:none}
 .howto summary::-webkit-details-marker{display:none}
 .howto summary::after{content:" ›";display:inline-block;transition:transform .2s}
@@ -735,9 +755,10 @@ function render(){
   document.querySelectorAll(".nav").forEach(b=>b.setAttribute("aria-current",b.dataset.go===S.view?"page":"false"));
   if(S.view==="home")renderHome();else if(S.view==="list")renderList();else if(S.view==="stats")renderStats();else if(S.view==="budget")renderBudget();else renderSettings();
 }
+const SRC_NAME={shortcut:"捷徑記帳",applepay:"Apple Pay"};
 function rowHTML(t,withDate){
   const inc=t.type==="inc";const tm=timeOf(t);
-  const sub=[esc(t.cat),withDate?`${+t.date.slice(5,7)}/${+t.date.slice(8)}${tm?" "+tm:""}`:tm,esc(t.acct||""),t.rid?"固定":""].filter(Boolean).join(" • ");
+  const sub=[esc(t.cat),withDate?`${+t.date.slice(5,7)}/${+t.date.slice(8)}${tm?" "+tm:""}`:tm,esc(t.acct||""),t.rid?"固定":"",SRC_NAME[t.src]?`<em class="srctag">${SRC_NAME[t.src]}</em>`:""].filter(Boolean).join(" • ");
   return`<div class="sw-wrap" data-id="${esc(t.id)}"><div class="act act-edit" aria-hidden="true">編輯</div><button type="button" class="act act-del" data-del="${esc(t.id)}" tabindex="-1">刪除</button><div class="row">${badge(t.type,t.cat)}<button class="main" type="button" data-edit="${esc(t.id)}"><b>${esc(t.note||t.cat)}</b><span>${sub}</span></button><span class="amt tn ${inc?"inc":""}">${inc?"+":"−"}$${fmt(t.amount)}</span></div></div>`;
 }
 /* swipe: left = delete, right = edit */
@@ -880,7 +901,7 @@ function foldCards(v){const st=foldState();
     const tog=()=>{const o=!c.classList.contains("open");c.classList.toggle("open",o);hd.setAttribute("aria-expanded",o);inner.inert=!o;const s=foldState();s[key]=o;foldSave(s)};
     hd.onclick=e=>{if(e.target.closest("button,a,input,select,label"))return;tog()};
     hd.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tog()}}})}
-function renderSettings(){renderSettings0();bindSync();foldCards($("#v-set"))}
+function renderSettings(){renderSettings0();bindSync();bindSc();foldCards($("#v-set"))}
 function renderSettings0(){
   const v=$("#v-set");
   v.innerHTML=`${whatsNewHTML()}<div class="card"><div class="card-h"><h2>外觀</h2></div>
@@ -902,6 +923,7 @@ function renderSettings0(){
   <div class="card"><div class="card-h"><h2>收入分類</h2><span>點圓點可以換顏色</span></div><div class="tags">${tagList("inc")}</div><div class="addrow"><input class="inp" id="add-inc" placeholder="新增分類，例如：紅包" maxlength="8"><button class="btn" data-tadd="inc" type="button">新增</button></div></div>
   <div class="card"><div class="card-h"><h2>帳戶</h2></div><div class="tags">${tagList("accounts")}</div><div class="addrow"><input class="inp" id="add-accounts" placeholder="新增帳戶，例如：Line Pay" maxlength="10"><button class="btn" data-tadd="accounts" type="button">新增</button></div></div>
   ${syncCardHTML()}
+  ${scCardHTML()}
   <div class="card" id="bakCard"><div class="card-h"><h2>備份與匯出</h2></div><p class="note">${SYNC.user?"已開啟雲端同步，資料會自動存到雲端。也可以另外匯出一份備份檔。":"資料只存在這支手機裡。建議開啟上面的雲端同步，或每月匯出一次備份。"}</p><div class="btns"><button class="btn" type="button" id="expCsv">匯出 Excel 用 CSV</button><button class="btn" type="button" id="expJson">匯出完整備份</button><label class="btn" for="impFile">匯入備份</label><input type="file" id="impFile" accept=".json,application/json" hidden></div><div id="expOut"></div></div>
   <p class="ver">Ver${APP_VER}</p>`;
   v.querySelectorAll("[data-cc]").forEach(b=>b.onclick=()=>{const k=ckey(b.dataset.cc,b.dataset.c);S.settings.colors[k]=((S.settings.colors[k]??0)+1)%NCOL;saveSettings()});
@@ -921,8 +943,10 @@ function renderSettings0(){
   v.querySelectorAll("[data-tadd]").forEach(b=>{const k=b.dataset.tadd,inp=$("#add-"+k);const f=()=>{const val=inp.value.trim();if(!val)return;if(S.settings[k].includes(val)){toast("「"+val+"」已經有了");return}S.settings[k].push(val);ensureColors();saveSettings();toast("已新增「"+val+"」")};b.onclick=f;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();f()}}});
   $("#expCsv").onclick=()=>exportFile("csv");$("#expJson").onclick=()=>exportFile("json");$("#impFile").onchange=importFile;
 }
-const APP_VER="4.2.0";
+const APP_VER="4.2.2";
 const CHANGELOG=[
+  {v:"4.2.2",d:"2026/11/06",items:["新增「捷徑快速記帳」：用 iPhone 捷徑按一下就記帳，不用打開 App，也不會跳出 Safari","捷徑記的帳會標上「捷徑記帳」，Apple Pay 自動記的會標上「Apple Pay」","捷徑金鑰只能新增帳，不能讀取資料；可以隨時重新產生"]},
+  {v:"4.2.1",d:"2026/11/06",items:["統計頁新增「記帳習慣」：本月有幾天記帳、幾天沒記帳、最長連續記帳幾天，還有小月曆一眼看出哪天漏記","統計頁新增「最常記的項目」：看出這個月最常花在哪裡","統計頁最下面可以把當月概況存成圖片，傳 LINE 或存到相簿"]},
   {v:"4.2.0",d:"2026/11/06",items:["新增免費雲端同步：用 Google 帳號或 Email 登入後，每次記帳自動存到雲端","換手機或刪掉 App 後，登入同一個帳號就能拿回所有資料","多支手機登入同一個帳號，資料會自動合併","雲端資料按年份分開存放，記再多年也不會超過上限"]},
   {v:"4.1.4",d:"2026/11/04",items:["修正：匯入舊版備份後，關鍵字會被清空","匯入時保留你現有的關鍵字，並和備份檔裡的合併","舊備份沒有的新設定（例如信用卡）也會保留現在的設定"]},
   {v:"4.1.3",d:"2026/11/04",items:["設定頁的選項改成可以展開／收合，頁面變短了","輸入商店／說明時，依關鍵字或以前的紀錄自動選分類","點說明欄會跳出常記的項目，點一下帶入分類、帳戶和金額","設定新增「關鍵字自動分類」，可以自己加關鍵字","設定最上面新增這個更新摘要"]},
@@ -988,6 +1012,7 @@ async function syncNow(){if(!SYNC.user||S.sample)return;if(SYNC.busy){SYNC.again
     const ms=await uref.get(),md=ms.exists?ms.data():null;
     if(md&&(md.schema||1)>SCHEMA)throw{code:"app/old"};
     const ys=await yref.get();
+    const inbox=await pullInbox();
     const L={tx:S.tx,settings:S.settings,del:S.del||{},setU:S.setU||0};
     let R={tx:[],settings:null,del:{},setU:-1};const ry={};
     const addDel=d=>{for(const[k,v]of Object.entries(d||{}))if(!(R.del[k]>=v))R.del[k]=v};
@@ -1004,9 +1029,62 @@ async function syncNow(){if(!SYNC.user||S.sample)return;if(SYNC.busy){SYNC.again
       if(j!==ry[y]){if(bytesOf(j)>900000)throw{code:"app/big",message:y};batch.set(yref.doc(y),{d:j,n:arr.length,at:Date.now()});n++}}
     const sj=JSON.stringify({settings:M.settings,del:M.del,setU:M.setU});
     if(!md||md.schema!==SCHEMA||md.d!==undefined||md.s!==sj){if(bytesOf(sj)>900000)throw{code:"app/big",message:"設定"};batch.set(uref,{schema:SCHEMA,s:sj,at:Date.now(),v:APP_VER});n++}
+    for(const r of inbox.refs){batch.delete(r);n++}
     if(n)await batch.commit();
+    if(inbox.added)toast(`已從捷徑匯入 ${inbox.added} 筆`);
     SYNC.last=Date.now()}catch(e){SYNC.err=syncErr(e)}
   finally{SYNC.busy=false;syncUI();if(SYNC.again){SYNC.again=false;syncSoon(300)}}}
+/* shortcut inbox: keys/{key}={uid}, inbox/{key}/items/{id}={amount,note?,cat?,src?,date?} (all strings) */
+function scParseAmt(v){const m=String(v??"").replace(/[,，\s]/g,"").match(/\d+(?:\.\d+)?/);return m?Math.round(parseFloat(m[0])*100)/100:0}
+function scParseDate(v){const d=v?new Date(String(v).trim().replace(/\//g,"-").replace(" ","T")):new Date();return isNaN(d)?new Date():d}
+async function pullInbox(){const out={refs:[],added:0};const key=S.settings.scKey;if(!key)return out;
+  let qs;try{qs=await SYNC.db.collection("inbox").doc(key).collection("items").get()}catch(e){SYNC.scErr=e&&e.code==="permission-denied"?"rules":"net";return out}
+  SYNC.scErr="";const exp=S.settings.exp||[],accts=S.settings.accounts||[];let ch=false;
+  qs.forEach(doc=>{out.refs.push(doc.ref);const id="sc_"+doc.id;if(S.tx.some(t=>t.id===id)||(S.del&&S.del[id]))return;
+    const d=doc.data()||{},amount=scParseAmt(d.amount);if(!(amount>0))return;
+    const src=d.src==="applepay"?"applepay":"shortcut",note=String(d.note||"").trim().slice(0,80),when=scParseDate(d.date);
+    let cat=String(d.cat||"").trim();if(!exp.includes(cat)){const g=note?guessByNote(note,"exp"):null;cat=g?g.cat:(exp.includes("其他")?"其他":exp[0])}
+    const acct=src==="applepay"&&accts.includes("信用卡")?"信用卡":(accts[0]||"");
+    S.tx.push({id,type:"exp",cat,acct,amount,date:dkey(when),note,ts:when.getTime(),src});out.added++;ch=true});
+  if(ch){markChanges();lsWrite();render()}return out}
+function scRandKey(){const b=crypto.getRandomValues(new Uint8Array(24));return btoa(String.fromCharCode(...b)).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,"")}
+function scURL(k){return`https://firestore.googleapis.com/v1/projects/${FB_CFG.projectId}/databases/(default)/documents/inbox/${k}/items?key=${FB_CFG.apiKey}`}
+const SC_BODY='{"fields":{"amount":{"stringValue":"金額"},"note":{"stringValue":"說明"},"date":{"stringValue":"目前日期"},"src":{"stringValue":"shortcut"}}}';
+const SC_BODY_AP='{"fields":{"amount":{"stringValue":"金額"},"note":{"stringValue":"商家"},"date":{"stringValue":"目前日期"},"src":{"stringValue":"applepay"}}}';
+function scCardHTML(){if(!FB_CFG)return"";
+  const head=`<div class="card" id="scCard"><div class="card-h"><h2>捷徑快速記帳</h2><span>不用打開 App</span></div>`;
+  if(!SYNC.user)return head+`<p class="note" style="margin:0">先在上面「雲端同步」登入，就能用 iPhone 捷徑快速記帳。</p></div>`;
+  const k=S.settings.scKey;
+  if(!k)return head+`<p class="note">用 iPhone「捷徑」App 按一下就記帳，不會開啟 Safari，也不用打開這個 App。記好的帳下次同步時會自動出現，並標上<em class="srctag">捷徑記帳</em>。</p><div class="btns"><button class="btn primary" type="button" id="scGen">產生捷徑金鑰</button></div></div>`;
+  const warn=SYNC.scErr==="rules"?`<p class="syncst err"><i></i><span>雲端權限還沒更新（請更新 Firestore 規則）</span></p>`:"";
+  return head+warn+`<p class="note">捷徑金鑰只能「新增帳」到你的帳本，不能讀取或刪除任何資料。覺得外流了就按「重新產生」，舊的會立刻失效。</p>
+    <code class="sckey" id="scUrl">${esc(scURL(k))}</code>
+    <div class="btns"><button class="btn primary" type="button" id="scCopy">複製網址</button><button class="btn" type="button" id="scCopyB">複製內容範本</button><button class="linkbtn" type="button" id="scNew">重新產生</button></div>
+    <details class="howto"><summary>捷徑設定步驟（約 5 分鐘）</summary><ol class="scsteps">
+      <li>打開「捷徑」App → 右上角 <b>＋</b> 新增捷徑，名稱取「記帳」。</li>
+      <li>加入動作「<b>要求輸入</b>」→ 類型選「數字」，提示寫「金額」。</li>
+      <li>再加一個「<b>要求輸入</b>」→ 類型「文字」，提示寫「說明（例如 星巴克）」。</li>
+      <li>加入動作「<b>文字</b>」→ 貼上「複製內容範本」的內容，然後把裡面的 <code>金額</code>、<code>說明</code> 換成上面兩個「提供的輸入」變數，<code>目前日期</code> 換成「目前日期」變數（點它把格式設成 <b>ISO 8601</b>、勾選包含時間）。</li>
+      <li>加入動作「<b>取得 URL 內容</b>」→ 網址貼上「複製網址」的內容；點「顯示更多」：方法選 <b>POST</b>，標頭新增 <code>Content-Type</code> = <code>application/json</code>，要求本文選「<b>檔案</b>」，選上一步的「文字」。</li>
+      <li>最後加「<b>顯示通知</b>」，內容寫「✓ 已記帳」。完成！可以把捷徑加到主畫面，或在「設定 → 輔助使用 → 觸控 → 背面輕點」綁定。</li></ol>
+      <p class="note" style="margin:10px 0 0">分類會依說明自動判斷（用你的關鍵字和以前的紀錄），記錯可以在 App 裡改。</p></details>
+    <details class="howto"><summary>進階：Apple Pay 刷卡自動記帳</summary><ol class="scsteps">
+      <li>捷徑 App → 下方「<b>自動化</b>」→ ＋ → 選「<b>錢包</b>」（交易），選你的卡片，設成「<b>立即執行</b>」。</li>
+      <li>動作和上面一樣，但不用「要求輸入」：在「文字」動作貼上 Apple Pay 範本（按「複製 Apple Pay 範本」），把 <code>金額</code>、<code>商家</code> 換成捷徑提供的「捷徑輸入」的金額、商家。</li>
+      <li>這類帳會標上<em class="srctag">Apple Pay</em>，帳戶自動用「信用卡」。</li></ol>
+      <div class="btns" style="margin-top:10px"><button class="btn" type="button" id="scCopyAP">複製 Apple Pay 範本</button></div>
+      <p class="note" style="margin:10px 0 0">是否能用要看你的卡片和地區有沒有支援錢包自動化。</p></details></div>`}
+async function scCopy(t,msg){try{await navigator.clipboard.writeText(t);toast(msg)}catch(e){toast("無法複製，請長按文字手動複製")}}
+async function scMake(){const old=S.settings.scKey,k=scRandKey();
+  try{await SYNC.db.collection("keys").doc(k).set({uid:SYNC.user.uid,at:Date.now()})}catch(e){toast(e&&e.code==="permission-denied"?"雲端權限還沒更新（請更新 Firestore 規則）":"產生失敗，請確認網路");return}
+  if(old){try{await SYNC.db.collection("keys").doc(old).delete()}catch(e){}}
+  S.settings.scKey=k;lsSave();renderSettings();toast(old?"已重新產生，舊金鑰已失效，記得更新捷徑裡的網址":"已產生捷徑金鑰")}
+function bindSc(){const g=id=>$("#"+id);if(!g("scCard"))return;
+  if(g("scGen"))g("scGen").onclick=scMake;
+  if(g("scNew"))g("scNew").onclick=()=>{if(confirm("重新產生後，舊的捷徑會無法使用，需要更新捷徑裡的網址。確定嗎？"))scMake()};
+  if(g("scCopy"))g("scCopy").onclick=()=>scCopy(scURL(S.settings.scKey),"已複製網址");
+  if(g("scCopyB"))g("scCopyB").onclick=()=>scCopy(SC_BODY,"已複製內容範本");
+  if(g("scCopyAP"))g("scCopyAP").onclick=()=>scCopy(SC_BODY_AP,"已複製 Apple Pay 範本")}
 function syncStatus(){if(SYNC.signing)return["busy","連線中…"];if(SYNC.busy)return["busy","同步中…"];if(SYNC.err)return["err",SYNC.err];
   if(SYNC.last){const d=new Date(SYNC.last);return["ok",`已同步 · ${d.getHours()}:${String(d.getMinutes()).padStart(2,"0")}`]}return["",SYNC.user?"準備同步…":"尚未登入"]}
 function syncCardHTML(){if(!FB_CFG)return`<div class="card" id="syncCard"><div class="card-h"><h2>雲端同步</h2><span>尚未啟用</span></div><p class="note" style="margin:0">雲端同步還在設定中，啟用後會出現在這裡。</p></div>`;
@@ -1178,7 +1256,7 @@ $("#sheet").onsubmit=e=>{
   e.preventDefault();const amt=evalAmount($("#fAmount").value);
   if(amt==null||isNaN(amt)||amt<=0){toast("請輸入大於 0 的金額");$("#fAmount").focus();return}
   const when=F.when||new Date();const date=isNaN(when)?ymd(new Date()):ymd(when);
-  const t={id:F.editing?F.editing.id:uid(),type:F.type,cat:ddGet("fCat"),acct:ddGet("fAcct"),amount:amt,date,note:$("#fNote").value.trim(),ts:isNaN(when)?Date.now():when.getTime()};
+  const t={id:F.editing?F.editing.id:uid(),type:F.type,cat:ddGet("fCat"),acct:ddGet("fAcct"),amount:amt,date,note:$("#fNote").value.trim(),ts:isNaN(when)?Date.now():when.getTime()};if(F.editing&&F.editing.src)t.src=F.editing.src;
   exitSample();
   if(!F.editing&&$("#fFav").checked){const name=t.note||t.cat;S.settings.favs=S.settings.favs||[];
     if(!S.settings.favs.some(f=>f.name===name&&f.amount===t.amount&&f.cat===t.cat))S.settings.favs.push({id:uid(),type:t.type,name,cat:t.cat,acct:t.acct,amount:t.amount})}
@@ -1401,6 +1479,53 @@ function trendSVG(months){
     if(x.e)s+=`<rect x="${cx-w/2}" y="${top}" width="${w}" height="${H-B-top}" rx="7" fill="${sel?"var(--accent)":"var(--surface2)"}" stroke="${sel?"none":"var(--line)"}"/><text x="${cx}" y="${top-6}" text-anchor="middle" font-size="11" font-weight="700" fill="${sel?"var(--accent)":"var(--muted)"}">${kfmt(x.e)}</text>`;
     s+=`<text x="${cx}" y="${H-8}" text-anchor="middle" font-size="12" font-weight="${sel?900:500}" fill="${sel?"var(--ink)":"var(--muted)"}">${+x.m.slice(5)}月</text></g>`});
   return`<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="近六個月支出" font-family="Microsoft JhengHei, Noto Sans TC, sans-serif">${s}</svg>`}
+function firstRecDate(){let f="";for(const t of S.tx)if(!t.rid&&t.date&&(!f||t.date<f))f=t.date;return f}
+function habitOf(m){const first=firstRecDate();if(!first||m<first.slice(0,7))return null;
+  const now=new Date(),cur=ym(now),dim=daysIn(m),today=m===cur?now.getDate():(m>cur?0:dim);
+  const start=first.slice(0,7)===m?+first.slice(8,10):1;
+  const set=new Set(S.tx.filter(t=>!t.rid&&t.date&&t.date.slice(0,7)===m).map(t=>+t.date.slice(8,10)));
+  let rec=0,miss=0,best=0,run=0,pending=false;const cells=[];
+  for(let d=1;d<=dim;d++){const ok=set.has(d);let k;
+    if(d<start)k="pre";else if(d>today)k="fu";
+    else if(ok){k="ok";rec++;run++;if(run>best)best=run}
+    else if(m===cur&&d===today){k="td";pending=true}
+    else{k="no";miss++;run=0}
+    cells.push({d,k})}
+  let streak=0;if(m===cur){const all=new Set(S.tx.filter(t=>!t.rid&&t.date).map(t=>t.date));const d=new Date(now);if(!all.has(dkey(d)))d.setDate(d.getDate()-1);while(all.has(dkey(d))){streak++;d.setDate(d.getDate()-1)}}
+  return{rec,miss,best,cells,pending,streak,started:start}}
+function dkey(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function topItems(list){const g=new Map();
+  for(const t of list){if(t.type==="inc"||t.rid)continue;const name=(t.note||"").trim()||t.cat;const k=name.toLowerCase();
+    const r=g.get(k)||{name,cat:t.cat,n:0,sum:0};r.n++;r.sum+=+t.amount||0;g.set(k,r)}
+  return[...g.values()].filter(r=>r.n>=2).sort((a,b)=>b.n-a.n||b.sum-a.sum).slice(0,5)}
+function cssColor(v){const m=/^var\((--[\w-]+)\)$/.exec(v);if(!m)return v;const r=getComputedStyle(document.body).getPropertyValue(m[1]).trim();return r.startsWith("var(")?cssColor(r):r||"#888"}
+async function shareMonth(m){const[yy,mm]=m.split("-"),list=monthTx(m),t=totals(list),hb=habitOf(m);
+  const cur={};for(const x of list)if(x.type!=="inc")cur[x.cat]=(cur[x.cat]||0)+(+x.amount||0);const rank=Object.entries(cur).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const cbh=130+Math.max(1,rank.length)*66,hy=660+cbh+30,W=1080,H=hy+(hb?120+30:0)+70,c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d");
+  const F='"Microsoft JhengHei","Noto Sans TC","PingFang TC",-apple-system,sans-serif';
+  const acc=cssColor("var(--hero)")||"#2374BA";
+  g.fillStyle="#F6F8F7";g.fillRect(0,0,W,H);
+  g.fillStyle=acc;g.fillRect(0,0,W,420);
+  g.fillStyle="rgba(255,255,255,.8)";g.font=`600 40px ${F}`;g.fillText("日常帳本 · 月報",72,110);
+  g.fillStyle="#fff";g.font=`800 96px ${F}`;g.fillText(`${yy} 年 ${+mm} 月`,72,225);
+  g.font=`500 38px ${F}`;g.fillStyle="rgba(255,255,255,.85)";g.fillText("本月支出",72,310);
+  g.font=`800 64px ${F}`;g.fillStyle="#fff";g.fillText("$"+fmt(t.e),72,382);
+  const rr=(x,y,w,h,r)=>{if(g.roundRect)g.roundRect(x,y,w,h,r);else g.rect(x,y,w,h)};const box=(x,y,w,h)=>{g.fillStyle="#fff";g.beginPath();rr(x,y,w,h,32);g.fill()};
+  box(56,460,968,170);
+  [["收入","$"+fmt(t.i),"#1F8A5B"],["結餘",money(t.n),t.n<0?"#C0392B":"#15191A"],["筆數",String(list.filter(x=>x.type!=="inc").length),"#15191A"]].forEach(([a,b,col],i)=>{const x=100+i*318;g.fillStyle="#6A736F";g.font=`500 34px ${F}`;g.fillText(a,x,525);g.fillStyle=col;g.font=`800 52px ${F}`;g.fillText(b,x,595)});
+  box(56,660,968,cbh);
+  g.fillStyle="#15191A";g.font=`700 40px ${F}`;g.fillText("花最多的分類",100,730);
+  const top=rank.length?rank[0][1]:1;
+  rank.forEach(([cat,v],i)=>{const y=800+i*66;g.fillStyle="#15191A";g.font=`600 34px ${F}`;g.fillText(cat.length>6?cat.slice(0,6)+"…":cat,100,y);
+    g.fillStyle="#ECEFEE";g.beginPath();rr(330,y-26,480,26,13);g.fill();
+    g.fillStyle=cssColor(catColor("exp",cat));g.beginPath();rr(330,y-26,Math.max(26,480*v/top),26,13);g.fill();
+    g.fillStyle="#15191A";g.font=`700 34px ${F}`;g.textAlign="right";g.fillText("$"+fmt(v),980,y);g.textAlign="left"});
+  if(!rank.length){g.fillStyle="#6A736F";g.font=`500 34px ${F}`;g.fillText("這個月沒有支出",100,800)}
+  if(hb){box(56,hy,968,120);g.fillStyle="#15191A";g.font=`700 38px ${F}`;g.fillText(`📝 有記帳 ${hb.rec} 天　沒記帳 ${hb.miss} 天　最長連續 ${hb.best} 天`,100,hy+75)}
+  g.fillStyle="#9AA29F";g.font=`500 28px ${F}`;g.textAlign="center";g.fillText("young1009.github.io/ledger",W/2,H-30);g.textAlign="left";
+  const blob=await new Promise(r=>c.toBlob(r,"image/png"));const name=`日常帳本-${m}.png`;
+  try{const f=new File([blob],name,{type:"image/png"});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:`${+mm} 月概況`});return}}catch(e){if(e&&e.name==="AbortError")return}
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000);toast("已下載圖片")}
 function renderStats(){
   const m=S.smonth||ym(new Date()),[yy,mm]=m.split("-"),pm=shiftMonth(m,-1),list=monthTx(m),t=totals(list),pt=totals(monthTx(pm));
   const isCur=m===ym(new Date()),days=isCur?new Date().getDate():daysIn(m);
@@ -1416,9 +1541,19 @@ function renderStats(){
   h+=`<div class="card"><div class="card-h"><h2>分類排行</h2><span>和上月比較</span></div>${rank.length?`<div class="ranks">${rank.map(([c,v],i)=>{const pv=prev[c]||0,d=v-pv;
     return`<div class="rk"><span class="rn tn">${i+1}</span><span class="qdot sm" style="background:${catColor("exp",c)}">${esc(c.slice(0,1))}</span><div class="rmain"><div class="rtop"><b>${esc(c)}</b><span class="tn"><b>$${fmt(v)}</b> · ${(v/t.e*100).toFixed(0)}%</span></div>
       <div class="rbar"><div style="width:${v/top*100}%;background:${catColor("exp",c)}"></div></div><div class="rsub">${pv?`<span class="${d>0?"up":"down"}">${d>0?"▲":"▼"} $${fmt(Math.abs(d))}</span>`:`<span>上月沒有</span>`}${lim[c]?`<span>預算 $${fmt(lim[c])}${v>lim[c]?" · 超支":""}</span>`:""}</div></div></div>`}).join("")}</div>`:`<div class="emptyline">這個月還沒有支出</div>`}</div>`;
+  const hb=habitOf(m);
+  if(hb){const wd=new Date(+yy,+mm-1,1).getDay();let cal=["日","一","二","三","四","五","六"].map(x=>`<b>${x}</b>`).join("")+"<span></span>".repeat(wd);
+    for(const c of hb.cells)cal+=`<i class="${c.k}">${c.d}</i>`;
+    h+=`<div class="card"><div class="card-h"><h2>記帳習慣</h2><span>${hb.pending?"今天還沒記帳":hb.started>1?`從 ${+mm}/${hb.started} 開始算`:""}</span></div>
+      <div class="minis" style="margin-top:0;padding-top:0;border-top:0;margin-bottom:14px"><div><span>有記帳</span><b class="tn">${hb.rec} 天</b></div><div><span>沒記帳</span><b class="tn">${hb.miss} 天</b></div><div><span>最長連續</span><b class="tn">${hb.best} 天</b></div></div>
+      <div class="cal">${cal}</div>${isCur&&hb.streak>1?`<div class="habit-note">🔥 目前已連續記帳 ${hb.streak} 天</div>`:""}</div>`}
+  const tops=topItems(list);
+  if(tops.length)h+=`<div class="card"><div class="card-h"><h2>最常記的項目</h2><span>依次數</span></div><div class="tops">${tops.map((r,i)=>`<div class="top"><span class="rn tn">${i+1}</span><div style="min-width:0"><b>${esc(r.name)}</b><small>${esc(r.cat)}</small></div><div class="tc tn">${r.n} 次<br><small>$${fmt(r.sum)}</small></div></div>`).join("")}</div></div>`;
   const big=list.filter(x=>x.type!=="inc").sort((a,b)=>b.amount-a.amount).slice(0,3);
   if(big.length)h+=`<div class="card"><div class="card-h"><h2>最大的 ${big.length} 筆支出</h2></div><div class="rows">${big.map(x=>rowHTML(x,true)).join("")}</div></div>`;
+  if(list.length)h+=`<button type="button" class="sharebtn" id="sShare">📷 把 ${+mm} 月概況存成圖片</button>`;
   const v=$("#v-stats");v.innerHTML=h;bindCards(v);
+  const sb=$("#sShare");if(sb)sb.onclick=()=>shareMonth(m);
   $("#sPrev").onclick=()=>{S.smonth=pm;renderStats();animateView("back")};
   $("#sNext").onclick=()=>{if(isCur)return;S.smonth=shiftMonth(m,1);renderStats();animateView("fwd")};
   v.querySelectorAll(".tbar").forEach(g=>g.onclick=()=>{const k=g.dataset.m;if(k===m)return;const dir=k>m?"fwd":"back";S.smonth=k;renderStats();animateView(dir)});
