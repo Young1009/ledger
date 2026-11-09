@@ -674,6 +674,15 @@ html[data-ios] .hero .big{font-size:44px;font-weight:700;letter-spacing:-.5px;te
 html[data-ios] .hero .sub{font-size:15px;color:rgba(255,255,255,.9);margin-top:4px}
 html[data-ios] .hero .bar{height:4px;border-radius:2px;background:rgba(255,255,255,.3);margin-top:12px}
 html[data-ios] .hero .bar div{border-radius:2px}
+.hfx{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.22)}
+.hfx.one{grid-template-columns:1fr}
+.hfx>div{display:flex;flex-direction:column;gap:1px;min-width:0}
+.hfx span{font-size:13px;color:rgba(255,255,255,.82)}
+.hfx b{font-size:22px;font-weight:700;color:#fff;line-height:1.25}
+.hfx small{font-size:12.5px;color:rgba(255,255,255,.82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hfx.warn>div:last-child small{color:#fff;font-weight:600}
+.hfx.warn>div:last-child small::before{content:"⚠︎ "}
+.hfxnote{font-size:11.5px;color:rgba(255,255,255,.7);margin-top:6px}
 /* section headers = Title 3 */
 html[data-ios] .sec-h{margin-bottom:-4px;padding-inline:4px}
 html[data-ios] .sec-h h2,html[data-ios] .card-h h2{font-size:20px;line-height:25px;font-weight:600;letter-spacing:-.45px}
@@ -1210,11 +1219,30 @@ function donut(parts,total,size){
   else for(const p of parts){const len=p.v/total*C;s+=`<circle cx="50" cy="50" r="${R}" fill="none" stroke="${p.c}" stroke-width="16" stroke-dasharray="${Math.max(0,len-(parts.length>1?1.2:0))} ${C}" stroke-dashoffset="${-off}" transform="rotate(-90 50 50)"/>`;off+=len}
   return`<svg viewBox="0 0 100 100" role="img" aria-label="分類支出">${s}<text x="50" y="55" text-anchor="middle" fill="var(--ink)" font-size="${total>=100000?11:13}" font-weight="700" font-family="Microsoft JhengHei, Noto Sans TC, sans-serif">$${fmt(total)}</text></svg>`;
 }
+/* today's allowance & month-end forecast (current month only) */
+function upcomingFixed(){const now=new Date(),m=ym(now),dd=now.getDate(),dim=daysIn(m),mm=+m.slice(5);let sum=0;const items=[];
+  for(const r of S.settings.recurring||[]){if(r.type!=="exp"||r.paused||!(+r.amount))continue;const d=Math.min(r.day,dim);if(d<=dd)continue;
+    if(r.cycle==="y"&&mm!==(r.month||1))continue;if(S.tx.some(t=>t.rid===r.id&&t.date.slice(0,7)===m))continue;sum+=+r.amount;items.push(r)}
+  return{sum,items}}
+function forecast(b){const now=new Date(),m=ym(now),dd=now.getDate(),dim=daysIn(m),today=ymd(now),list=monthTx(m).filter(isExp);
+  let fixedDone=0,varBefore=0,varToday=0;for(const t of list){const v=+t.amount||0;if(t.rid)fixedDone+=v;else if(t.date<today)varBefore+=v;else if(t.date===today)varToday+=v}
+  const up=upcomingFixed(),spent=fixedDone+varBefore+varToday;
+  const first=firstRecDate();const start=first&&first.slice(0,7)===m?+first.slice(8):1;const days=Math.max(1,dd-start+1);
+  const varSoFar=varBefore+varToday,pace=varSoFar/days,proj=spent+up.sum+pace*(dim-dd);
+  const r={proj,pace,up:up.sum,upN:up.items.length,few:days<3||list.filter(t=>!t.rid).length<3};
+  if(b){const left=dim-dd+1,pool=b-fixedDone-up.sum-varBefore;r.daily=pool/left;r.can=r.daily-varToday;r.over=proj-b}
+  return r}
+function forecastHTML(b){const f=forecast(b);let a="";
+  if(b){a=f.daily<=0?`<div><span>今天還能花</span><b class="tn">$0</b><small>本月預算已用完</small></div>`
+    :`<div><span>${f.can>=0?"今天還能花":"今天已超出"}</span><b class="tn">$${fmt(Math.abs(Math.round(f.can)))}</b><small class="tn">每天約 $${fmt(Math.round(f.daily))}</small></div>`}
+  const ps=b?(f.over>0?`會超出 $${fmt(Math.round(f.over))}`:`預算內，約剩 $${fmt(Math.round(-f.over))}`):(f.up?`含未扣款固定支出 $${fmt(f.up)}`:"照目前速度");
+  return`<div class="hfx${b?"":" one"}${b&&f.over>0?" warn":""}">${a}<div><span>月底預估支出</span><b class="tn">$${fmt(Math.round(f.proj))}</b><small class="tn">${ps}</small></div></div>${f.few?`<div class="hfxnote">本月資料還少，預估僅供參考</div>`:""}`}
 function renderHome(){
   const m=ym(new Date()),list=monthTx(m),t=totals(list),b=+S.settings.budget||0;
   const left=b-t.e;
   let h=`<div class="hero ${b&&left<0?"over":""}"><div class="lbl">本月剩餘</div><div class="big tn">${money(t.n)}</div>`;
   if(b)h+=`<div class="sub tn"><span>預算 $${fmt(b)}</span><span>•</span><span>${left>=0?"剩餘 $"+fmt(left):"超支 $"+fmt(-left)}</span></div><div class="bar"><div style="width:${Math.min(100,t.e/b*100)}%"></div></div>`;
+  h+=forecastHTML(b);
   h+=`</div>`;
   const alerts=budgetRows(m).filter(r=>r.limit&&r.spent/r.limit>=.9).sort((a,b)=>b.spent/b.limit-a.spent/a.limit);
   h+=remindersHTML();
@@ -1403,8 +1431,9 @@ function renderSettings0(){
   v.querySelectorAll("[data-tadd]").forEach(b=>{const k=b.dataset.tadd,inp=$("#add-"+k);const f=()=>{const val=inp.value.trim();if(!val)return;if(S.settings[k].includes(val)){toast("「"+val+"」已經有了");return}S.settings[k].push(val);if(k==="accounts"&&SAVE_RE.test(val))S.settings.saveAccts=[...new Set([...(S.settings.saveAccts||[]),val])];ensureColors();saveSettings();toast("已新增「"+val+"」")};b.onclick=f;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();f()}}});
   $("#expCsv").onclick=()=>exportFile("csv");$("#expJson").onclick=()=>exportFile("json");$("#impFile").onchange=importFile;
 }
-const APP_VER="4.4.0";
+const APP_VER="4.5.0";
 const CHANGELOG=[
+  {v:"4.5.0",d:"2026/11/09",items:["首頁新增「今天還能花」：用剩下的預算平均分給本月剩下的天數，已經排定的房租、訂閱這類固定支出會先扣掉","首頁新增「月底預估支出」：照這個月的花錢速度，加上還沒扣款的固定支出，預估月底會不會超過預算"]},
   {v:"4.4.0",d:"2026/11/09",items:["記一筆新增「轉帳」：存錢、買股票、繳卡費這類把錢搬到另一個帳戶的，記成轉帳就不會算進支出和預算","設定 → 帳戶可以看到每個帳戶的餘額，點「校正」輸入實際金額後就會自動計算","把儲蓄、證券戶這類帳戶打開「存錢」，統計頁會顯示「本月存下」多少錢","首頁「常用項目」會自動出現本月記過 3 次以上的項目，點一下就記帳","更像 App：快速點兩下不會再放大畫面，長按也不會把字反白"]},
   {v:"4.3.0",d:"2026/11/07",items:["全新 iOS 27 風格外觀：大標題、圓角分組清單、玻璃質感的底部選單","設定頁改成 iPhone 設定那樣的分組清單，點進去再看細項","首頁「快速記一筆」改成可以左右滑動，所有分類都在裡面","記一筆改成全螢幕的 iOS 樣式，還有專屬的計算機鍵盤，可以直接加減乘除","新增「訂閱」頁：集中管理 Netflix、Spotify 這類訂閱，看每月總共花多少、下次哪天扣款，到期自動記帳","新增訂閱時分類預設為「訂閱」，統計頁可以直接看出每月訂閱花多少","預算移到設定裡，底部選單改成首頁、明細、統計、訂閱","底部選單加上圖示，「記一筆」按鈕移到右下角","主題色增加到 16 種","分類顏色可以自己選：24 種預設色，也能自訂任何顏色"]},
   {v:"4.2.2",d:"2026/11/06",items:["新增「捷徑快速記帳」：用 iPhone 捷徑按一下就記帳，不用打開 App，也不會跳出 Safari","捷徑記的帳會標上「捷徑記帳」，Apple Pay 自動記的會標上「Apple Pay」","捷徑金鑰只能新增帳，不能讀取資料；可以隨時重新產生"]},
