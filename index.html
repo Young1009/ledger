@@ -566,6 +566,21 @@ html[data-ios] .hero .bar div{border-radius:2px}
 .hfx small{color:rgba(255,255,255,.82);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hfx.warn>div:last-child small{color:#fff;font-weight:600}
 .hfx.warn>div:last-child small::before{content:"⚠︎ "}
+.wkcard .card-h{align-items:center}
+.wkcard .card-h span{margin-left:auto}
+.wkx{width:30px;height:30px;margin:-4px -6px -4px 2px;border:0;border-radius:50%;background:var(--surface2);color:var(--muted);display:grid;place-items:center;flex:none}
+.wkx svg{width:14px;height:14px}
+.wkbig{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.wkbig>span{font-size:14px;color:var(--muted);flex-basis:100%}
+.wkbig b{font-size:30px;font-weight:700;line-height:1.2}
+.wkchg{font-size:13.5px;font-weight:600;color:var(--muted)}
+.wkchg.up{color:var(--danger)}.wkchg.down{color:#2E9A5F}
+.wkrows{margin-top:12px;border-top:.5px solid var(--line)}
+.wkrow{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 0;border-bottom:.5px solid var(--line);font-size:15px}
+.wkrow:last-child{border-bottom:0;padding-bottom:0}
+.wkrow>span{color:var(--muted)}
+.wkrow b{font-weight:600;display:inline-flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wkrow b i{width:9px;height:9px;border-radius:50%;flex:none}
 .hfxnote{font-size:11.5px;color:rgba(255,255,255,.7);margin-top:6px}
 /* section headers = Title 3 */
 html[data-ios] .sec-h{margin-bottom:-4px;padding-inline:4px}
@@ -1094,6 +1109,25 @@ function forecastHTML(b){const f=forecast(b);let a="";
     :`<div><span>${f.can>=0?"今天還能花":"今天已超出"}</span><b class="tn">$${fmt(Math.abs(Math.round(f.can)))}</b><small class="tn">每天約 $${fmt(Math.round(f.daily))}</small></div>`}
   const ps=b?(f.over>0?`會超出 $${fmt(Math.round(f.over))}`:`預算內，約剩 $${fmt(Math.round(-f.over))}`):(f.up?`含未扣款固定支出 $${fmt(f.up)}`:"照目前速度");
   return`<div class="hfx${b?"":" one"}${b&&f.over>0?" warn":""}">${a}<div><span>月底預估支出</span><b class="tn">$${fmt(Math.round(f.proj))}</b><small class="tn">${ps}</small></div></div>${f.few?`<div class="hfxnote">本月資料還少，預估僅供參考</div>`:""}`}
+/* weekly review card: last Mon–Sun, shown from Monday until dismissed */
+function monOf(d){const x=new Date(d.getFullYear(),d.getMonth(),d.getDate());x.setDate(x.getDate()-((x.getDay()+6)%7));return x}
+function addDays(d,n){const x=new Date(d);x.setDate(x.getDate()+n);return x}
+function weekReview(){const mon=monOf(new Date()),key=ymd(mon);if(S.settings.wkSeen===key)return null;
+  const a=ymd(addDays(mon,-7)),b=ymd(addDays(mon,-1)),pa=ymd(addDays(mon,-14)),pb=ymd(addDays(mon,-8));
+  const last=S.tx.filter(t=>t.date>=a&&t.date<=b);if(!last.some(t=>!t.rid))return null;
+  const exp=last.filter(isExp),total=exp.reduce((s,t)=>s+(+t.amount||0),0),inc=last.filter(t=>t.type==="inc").reduce((s,t)=>s+(+t.amount||0),0);
+  const first=firstRecDate(),hasPrev=!!first&&first<=pb;const prev=S.tx.filter(t=>t.date>=pa&&t.date<=pb&&isExp(t)).reduce((s,t)=>s+(+t.amount||0),0);
+  const by={};for(const t of exp)by[t.cat]=(by[t.cat]||0)+(+t.amount||0);const top=Object.entries(by).sort((x,y)=>y[1]-x[1])[0];
+  const big=[...exp].sort((x,y)=>(+y.amount||0)-(+x.amount||0))[0];const days=new Set(last.filter(t=>!t.rid).map(t=>t.date)).size;
+  return{key,a,b,total,inc,prev,hasPrev,top,big,days}}
+function weekCardHTML(){const w=weekReview();if(!w)return"";const md=s=>`${+s.slice(5,7)}/${+s.slice(8)}`;
+  let chg="";if(w.hasPrev){const d=w.total-w.prev,pct=w.prev?Math.round(d/w.prev*100):null;
+    chg=Math.abs(d)<1||(pct!==null&&Math.abs(pct)<3)?`<span class="wkchg">和前一週差不多</span>`
+      :`<span class="wkchg ${d>0?"up":"down"}">比前一週${d>0?"多":"少"} $${fmt(Math.abs(d))}${pct!==null?`（${d>0?"+":"−"}${Math.abs(pct)}%）`:""}</span>`}
+  const row=(k,v)=>`<div class="wkrow"><span>${k}</span><b class="tn">${v}</b></div>`;
+  return`<div class="card wkcard"><div class="card-h"><h2>上週回顧</h2><span class="tn">${md(w.a)} – ${md(w.b)}</span><button type="button" class="wkx" data-wkx="${w.key}" aria-label="關閉上週回顧"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="wkbig"><span>支出</span><b class="tn">$${fmt(w.total)}</b>${chg}</div>
+    <div class="wkrows">${w.top?row(`花最多`,`<i style="background:${catColor("exp",w.top[0])}"></i>${esc(w.top[0])} $${fmt(w.top[1])}`):""}${w.big?row("最大一筆",`${esc(w.big.note||w.big.cat)} $${fmt(w.big.amount)}`):""}${w.inc?row("收入",`$${fmt(w.inc)}`):""}${row("有記帳",`${w.days} / 7 天`)}</div></div>`}
 function renderHome(){
   const m=ym(new Date()),list=monthTx(m),t=totals(list),b=+S.settings.budget||0;
   const left=b-t.e;
@@ -1103,6 +1137,7 @@ function renderHome(){
   h+=`</div>`;
   const alerts=budgetRows(m).filter(r=>r.limit&&r.spent/r.limit>=.9).sort((a,b)=>b.spent/b.limit-a.spent/a.limit);
   h+=remindersHTML();
+  h+=weekCardHTML();
   if(alerts.length)h+=`<button type="button" class="balert" id="bAlert">${alerts.slice(0,3).map(r=>`<span class="${r.spent>r.limit?"over":"warn"}"><i style="background:${catColor("exp",r.cat)}"></i>${esc(r.cat)} ${r.spent>r.limit?"超支 $"+fmt(r.spent-r.limit):"已用 "+Math.floor(r.spent/r.limit*100)+"%"}</span>`).join("")}<em>查看預算 ›</em></button>`;
   h+=`<div class="sec-h"><h2>快速記一筆</h2><span>左右滑動看全部分類</span></div><div class="qscroll" role="list">`;
   {const rc=recentCats(),all=[...rc,...S.settings.exp.filter(c=>!rc.includes(c))];
@@ -1125,6 +1160,7 @@ function renderHome(){
   $("#addFav").onclick=()=>openSheet({fav:true});
   if($("#bAlert"))$("#bAlert").onclick=()=>{S.budgetFrom="home";go("budget")};
   bindReminders(v);
+  const wx=v.querySelector("[data-wkx]");if(wx)wx.onclick=()=>{S.settings.wkSeen=wx.dataset.wkx;saveSettings()};
   bindRows(v);
   if($("#seeAll"))$("#seeAll").onclick=()=>go("list");
 }
@@ -1272,8 +1308,9 @@ function renderSettings0(){
   v.querySelectorAll("[data-tadd]").forEach(b=>{const k=b.dataset.tadd,inp=$("#add-"+k);const f=()=>{const val=inp.value.trim();if(!val)return;if(S.settings[k].includes(val)){toast("「"+val+"」已經有了");return}S.settings[k].push(val);if(k==="accounts"&&SAVE_RE.test(val))S.settings.saveAccts=[...new Set([...(S.settings.saveAccts||[]),val])];ensureColors();saveSettings();toast("已新增「"+val+"」")};b.onclick=f;inp.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();f()}}});
   $("#expCsv").onclick=()=>exportFile("csv");$("#expJson").onclick=()=>exportFile("json");$("#impFile").onchange=importFile;
 }
-const APP_VER="4.5.2";
+const APP_VER="4.6.0";
 const CHANGELOG=[
+  {v:"4.6.0",d:"2026/11/17",items:["首頁新增「上週回顧」：每週一起顯示上週花了多少、比前一週多還是少、花最多的分類、最大一筆和記帳天數，看完可以關掉"]},
   {v:"4.5.2",d:"2026/11/09",items:["記一筆：計算機鍵盤打開和收起時會從下方滑入、滑出","記一筆：在頁面頂端往下滑就能關閉，回到原本的頁面","修正：記一筆金額、固定收支金額、信用卡額度的數字變得很小的問題"]},
   {v:"4.5.1",d:"2026/11/09",items:["程式整理：移除改版留下的舊程式和用不到的樣式，檔案變小、開啟更快，功能和畫面都沒有改變","修正：記一筆的「分類」「帳戶」選單打開時，沒有自動捲到目前選的項目"]},
   {v:"4.5.0",d:"2026/11/09",items:["首頁新增「今天還能花」：用剩下的預算平均分給本月剩下的天數，已經排定的房租、訂閱這類固定支出會先扣掉","首頁新增「月底預估支出」：照這個月的花錢速度，加上還沒扣款的固定支出，預估月底會不會超過預算"]},
